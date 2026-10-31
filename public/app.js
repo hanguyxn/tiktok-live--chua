@@ -382,19 +382,45 @@ function spawnRandomBot() {
 // ─── Web Audio API (Bell + Mõ Synthesis + Meditative Music) ──────────
 let AC = null;
 let masterGain = null;
-let musicGain = null;
 let muted = false;
 let audioStarted = false;
 let mokTimer = null;
 let bellTimer = null;
 
-const TRACKS = [
-  { src: '/assets/music/loi_phat_day.m4a', name: 'Lời Phật Dạy · Nửa Đời Còn Lại Hãy Sống Chậm & Bình Yên' },
-  { src: '/assets/music/music1.mp3', name: 'Nhạc Thiền Tịnh Tâm 1' },
-  { src: '/assets/music/music2.mp3', name: 'Nhạc Thiền Tịnh Tâm 2' }
-];
-let musicEls = [];
-let trackIdx = 0;
+let bgAudio = null;
+let currentTrackSrc = '';
+let currentTrackName = '';
+
+function playMusicFile(src, name) {
+  if (!src) return;
+  currentTrackSrc = src;
+  currentTrackName = name || 'Nhạc Thiền';
+
+  if (!bgAudio) {
+    bgAudio = new Audio();
+    bgAudio.loop = true;
+    bgAudio.preload = 'auto';
+    bgAudio.addEventListener('error', (e) => {
+      console.warn('[Audio] Lỗi phát file nhạc:', src, e);
+    });
+  }
+
+  bgAudio.src = src;
+  bgAudio.volume = muted ? 0 : 0.65;
+
+  if (audioStarted) {
+    const p = bgAudio.play();
+    if (p !== undefined) {
+      p.then(() => {
+        console.log('[Music] 🎵 Đang phát:', currentTrackName);
+      }).catch(err => {
+        console.warn('[Music] Trình duyệt cần nhấp chuột để bắt đầu âm thanh:', err.message);
+      });
+    }
+  }
+
+  if (nowPlayingEl) nowPlayingEl.textContent = '♪ ' + currentTrackName;
+}
 
 function startAudioEngine() {
   if (audioStarted && AC) return;
@@ -405,113 +431,33 @@ function startAudioEngine() {
     masterGain.gain.value = 0.85;
     masterGain.connect(AC.destination);
 
-    musicGain = AC.createGain();
-    musicGain.gain.value = 0.65;
-    musicGain.connect(masterGain);
-
-    playMusicTrack(0);
+    audioStarted = true;
+    if (audioGate) audioGate.classList.add('hidden');
 
     // Chuông định kỳ mỗi 60s
     bell(false);
-    bellTimer = setInterval(() => bell(false), 60000);
+    if (!bellTimer) bellTimer = setInterval(() => bell(false), 60000);
 
     // Mõ gõ nhẹ nhàng đệm thanh tịnh
-    mokTimer = setInterval(() => mok(0.06), 2000);
+    if (!mokTimer) mokTimer = setInterval(() => mok(0.06), 2000);
 
-    audioStarted = true;
-    if (audioGate) audioGate.classList.add('hidden');
+    // Bắt đầu phát bài nhạc thiền
+    if (bgAudio) {
+      bgAudio.volume = muted ? 0 : 0.65;
+      bgAudio.play().catch(() => {});
+    } else {
+      const defaultTrack = config?.currentTrack ? ('/assets/music/' + config.currentTrack) : '/assets/music/nhac_thien_buoi_sang.m4a';
+      playMusicFile(defaultTrack, 'Nhạc Thiền Chánh Điện');
+    }
   } catch (err) {
     console.warn('Web Audio error:', err);
   }
 }
 
-function playMusicTrack(idx) {
-  if (!AC) return;
-  trackIdx = (idx + TRACKS.length) % TRACKS.length;
-  const track = TRACKS[trackIdx];
-
-  const audioEl = new Audio(track.src);
-  audioEl.preload = 'auto';
-  audioEl.crossOrigin = 'anonymous';
-  audioEl.loop = true;
-
-  try {
-    const src = AC.createMediaElementSource(audioEl);
-    const gain = AC.createGain();
-    gain.gain.value = 0;
-    src.connect(gain);
-    gain.connect(musicGain);
-
-    const now = AC.currentTime;
-    gain.gain.linearRampToValueAtTime(1, now + 2);
-
-    for (const old of musicEls) {
-      old.gain.cancelScheduledValues(now);
-      old.gain.setValueAtTime(old.gain.gain.value, now);
-      old.gain.linearRampToValueAtTime(0, now + 2);
-      setTimeout(() => { try { old.el.pause(); } catch (e) {} }, 2200);
-    }
-    musicEls = [{ el: audioEl, gain }];
-
-    audioEl.addEventListener('ended', () => {
-      playMusicTrack(0);
-    });
-
-    audioEl.addEventListener('error', () => {
-      console.warn('[Audio] Lỗi tải bài nhạc, chuyển bài tiếp theo sau 2s');
-      setTimeout(() => playMusicTrack(trackIdx + 1), 2000);
-    });
-
-    audioEl.play().catch(() => {});
-    if (nowPlayingEl) nowPlayingEl.textContent = '♪ ' + track.name;
-  } catch (e) {
-    console.warn('Track play error:', e);
-  }
-}
-
-function playMusicByUrl(src, name) {
-  if (!AC) return;
-  const audioEl = new Audio(src);
-  audioEl.preload = 'auto';
-  audioEl.crossOrigin = 'anonymous';
-  audioEl.loop = true;
-
-  try {
-    const srcNode = AC.createMediaElementSource(audioEl);
-    const gain = AC.createGain();
-    gain.gain.value = 0;
-    srcNode.connect(gain);
-    gain.connect(musicGain);
-
-    const now = AC.currentTime;
-    gain.gain.linearRampToValueAtTime(1, now + 1.8);
-
-    for (const old of musicEls) {
-      old.gain.cancelScheduledValues(now);
-      old.gain.setValueAtTime(old.gain.gain.value, now);
-      old.gain.linearRampToValueAtTime(0, now + 1.8);
-      setTimeout(() => { try { old.el.pause(); } catch (e) {} }, 2000);
-    }
-    musicEls = [{ el: audioEl, gain }];
-
-    audioEl.addEventListener('error', () => {
-      console.warn('[Audio] Lỗi tải bài nhạc tùy chỉnh, thử lại track mặc định');
-      setTimeout(() => playMusicTrack(0), 2000);
-    });
-
-    audioEl.play().catch(() => {});
-    if (nowPlayingEl) nowPlayingEl.textContent = '♪ ' + (name || 'Nhạc Thiền');
-  } catch (e) {
-    console.warn('Custom track play error:', e);
-  }
-}
-
 function setDuckMusic(isDucking) {
-  if (!musicGain || !AC) return;
-  const now = AC.currentTime;
-  musicGain.gain.cancelScheduledValues(now);
-  musicGain.gain.setValueAtTime(musicGain.gain.value, now);
-  musicGain.gain.linearRampToValueAtTime(isDucking ? 0.15 : 0.5, now + 0.4);
+  if (bgAudio) {
+    bgAudio.volume = isDucking ? 0.18 : (muted ? 0 : 0.65);
+  }
 }
 
 // Chuông đồng ngân vang (432Hz, 1296Hz, 2160Hz)
@@ -1029,10 +975,17 @@ function processNextFortune() {
 function focusDevoteeForFortune(v, fortune, giftInfo, duration = 7.0) {
   if (!v || !fortune) return;
 
+  const poetClean = (fortune.poem || '').replace(/\s*\/\s*/g, '. ');
+  const ttsText = `Chúc mừng thí chủ ${v.name} đã bốc được ${fortune.number}, ${fortune.grade}. ${fortune.title}. Thơ quẻ: ${poetClean}. Lời Phật dạy: ${fortune.advice || fortune.meaning}. Nam mô A Di Đà Phật!`;
+
+  // Tính toán thời gian hiển thị tương ứng với độ dài câu đọc đầy đủ bài thơ (khoảng 14 ký tự/giây)
+  const estimatedReadTime = Math.ceil(ttsText.length / 14) + 3.0;
+  const actualDuration = Math.max(duration, estimatedReadTime, 12.0);
+
   camera.focusVisitor = v;
   camera.active = true;
-  camera.duration = duration;
-  camera.timer = duration;
+  camera.duration = actualDuration;
+  camera.timer = actualDuration;
 
   const zoomLevel = (config.fortune && config.fortune.zoomLevel) ? config.fortune.zoomLevel : 1.75;
   camera.targetZoom = zoomLevel;
@@ -1050,19 +1003,17 @@ function focusDevoteeForFortune(v, fortune, giftInfo, duration = 7.0) {
   v.glow = 8.0;
   v.bow = 2.5;
   v.speech = "🙏 Nhận Quẻ: " + (fortune.grade || fortune.number);
-  v.speechTimer = duration;
+  v.speechTimer = actualDuration;
 
   // Rung chuông tịnh tâm và phát hào quang
   bell(true);
   haloPulse = 1.2;
 
-  // Hiển thị Thẻ Quẻ Xăm lên màn hình
-  showFortuneCard(v, fortune, duration);
+  // Hiển thị Thẻ Quẻ Xăm lên màn hình đầy đủ thời gian đọc thơ
+  showFortuneCard(v, fortune, actualDuration);
 
-  // Đọc lời chúc phúc giải quẻ qua TTS
+  // Đọc toàn bộ bài thơ và giải quẻ qua TTS
   if (config.fortune?.ttsEnabled !== false) {
-    const poetClean = (fortune.poem || '').replace(/\s*\/\s*/g, '. ');
-    const ttsText = `Chúc mừng thí chủ ${v.name} đã bốc được ${fortune.number}, ${fortune.grade}. ${fortune.title}. ${poetClean}. ${fortune.meaning}. Nam mô A Di Đà Phật!`;
     speakBlessing(ttsText);
   }
 }
@@ -1167,6 +1118,43 @@ function updateFortuneBannerUI() {
 
   if (qualifying.length > displayLimit) {
     html += `<div class="fsb-more">+ và ${qualifying.length - displayLimit} lễ vật khác</div>`;
+  }
+
+  listEl.innerHTML = html;
+}
+
+function updateGiftsBannerUI() {
+  const listEl = document.getElementById('gsbList');
+  if (!listEl) return;
+
+  const gifts = Array.isArray(config.gifts) ? config.gifts.filter(g => g.enabled !== false) : [];
+  if (gifts.length === 0) {
+    listEl.innerHTML = `<div class="gsb-item" style="justify-content:center;color:#d9a441;">Hoa Sen, Nến, Hương Trầm</div>`;
+    return;
+  }
+
+  // Sắp xếp theo số xu tăng dần
+  const sorted = [...gifts].sort((a, b) => (a.diamondCount || a.points || 0) - (b.diamondCount || b.points || 0));
+  const displayLimit = 5;
+  const shown = sorted.slice(0, displayLimit);
+
+  let html = shown.map(g => {
+    const cost = g.diamondCount || g.points || 1;
+    const icon = g.icon || '🎁';
+    const name = g.name || g.giftName || 'Lễ vật';
+    return `
+      <div class="gsb-item">
+        <div class="gsb-item-left">
+          <span class="gsb-item-icon">${icon}</span>
+          <span class="gsb-item-name" title="${name}">${name}</span>
+        </div>
+        <span class="gsb-item-coin">${cost} xu</span>
+      </div>
+    `;
+  }).join('');
+
+  if (sorted.length > displayLimit) {
+    html += `<div class="gsb-more">+ và ${sorted.length - displayLimit} lễ vật khác</div>`;
   }
 
   listEl.innerHTML = html;
@@ -1526,7 +1514,11 @@ socket.on('init_state', (data) => {
       bgImg.src = config.currentBackground;
       bgImg.onload = () => { A.hall = bgImg; };
     }
+    if (config.currentTrack) {
+      playMusicFile('/assets/music/' + config.currentTrack, 'Nhạc Thiền');
+    }
     updateFortuneBannerUI();
+    updateGiftsBannerUI();
   }
   if (data.username) {
     currentUsername = data.username;
@@ -1577,7 +1569,11 @@ socket.on('config_updated', (newConfig) => {
       bgImg.src = config.currentBackground;
       bgImg.onload = () => { A.hall = bgImg; };
     }
+    if (config.currentTrack && (!currentTrackSrc || !currentTrackSrc.includes(config.currentTrack))) {
+      playMusicFile('/assets/music/' + config.currentTrack, 'Nhạc Thiền');
+    }
     updateFortuneBannerUI();
+    updateGiftsBannerUI();
   }
 });
 
@@ -1939,14 +1935,34 @@ audioGate?.addEventListener('click', () => {
 btnMute?.addEventListener('click', () => {
   muted = !muted;
   if (masterGain && AC) {
-    masterGain.gain.value = muted ? 0 : 0.8;
+    masterGain.gain.value = muted ? 0 : 0.85;
+  }
+  if (bgAudio) {
+    bgAudio.volume = muted ? 0 : 0.65;
   }
   btnMute.textContent = muted ? '🔇 Đã tắt âm' : '🔊 Âm thanh';
   btnMute.setAttribute('aria-pressed', muted);
 });
 
 btnNextTrack?.addEventListener('click', () => {
-  if (AC) playMusicTrack(trackIdx + 1);
+  fetch('/api/music/list')
+    .then(r => r.json())
+    .then(data => {
+      const tracks = data.tracks || [];
+      if (tracks.length > 0) {
+        const cur = currentTrackSrc.split('/').pop() || config?.currentTrack;
+        const currentIdx = tracks.findIndex(t => t.fileName === cur || t.url === currentTrackSrc);
+        const nextTrack = tracks[(currentIdx + 1) % tracks.length];
+        if (nextTrack) {
+          playMusicFile(nextTrack.url, nextTrack.name);
+          fetch('/api/music/select', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fileName: nextTrack.fileName })
+          }).catch(() => {});
+        }
+      }
+    }).catch(() => {});
 });
 
 // Nhấp vào canvas: gõ mõ và niệm Phật

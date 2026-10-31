@@ -79,7 +79,7 @@ html, body {
 }
 
 #top {
-  top: max(14px, env(safe-area-inset-top, 14px));
+  top: max(64px, calc(env(safe-area-inset-top, 14px) + 50px));
   left: 14px;
   right: 14px;
   justify-content: space-between;
@@ -208,18 +208,30 @@ html, body {
   background: rgba(30, 15, 8, 0.85);
 }
 
-/* ─── Bảng Tấm Lòng Thành (Top Donors) ───────────────────────────── */
-#board {
+/* ─── Cột Phải: Bảng Tấm Lòng Thành & Bảng Lễ Vật Cúng Dường ─────── */
+.right-stack {
   position: absolute;
   right: 14px;
-  top: max(110px, calc(env(safe-area-inset-top, 14px) + 96px));
+  top: max(124px, calc(env(safe-area-inset-top, 14px) + 110px));
   z-index: 5;
-  background: rgba(22, 11, 7, 0.88);
-  border: 1px solid rgba(217, 164, 65, 0.55);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+  pointer-events: none;
+  max-width: 175px;
+}
+
+#board {
+  position: relative;
+  right: auto;
+  top: auto;
+  z-index: 5;
+  width: 160px;
+  background: rgba(22, 11, 7, 0.90);
+  border: 1.2px solid rgba(217, 164, 65, 0.6);
   border-radius: 12px;
-  padding: 8px 12px;
-  min-width: 145px;
-  max-width: 180px;
+  padding: 8px 10px;
   font-size: 11px;
   backdrop-filter: blur(12px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65);
@@ -443,19 +455,19 @@ html, body {
 }
 
 /* ===================================================================
- *  Center-Left Fortune Call-To-Action Banner (Bên Trái Màn Hình)
+ *  Bảng Bốc Quẻ Xăm (Bên Trái Dưới Chữ Chùa Online)
  * =================================================================== */
 .fortune-side-banner {
   position: absolute;
   left: 14px;
-  top: 48%;
-  transform: translateY(-50%);
+  top: max(124px, calc(env(safe-area-inset-top, 14px) + 110px));
+  transform: none;
   z-index: 6;
-  width: 175px;
+  width: 160px;
   background: linear-gradient(165deg, rgba(38, 16, 8, 0.94) 0%, rgba(18, 7, 3, 0.96) 100%);
   border: 1.5px solid var(--gold);
-  border-radius: 14px;
-  padding: 12px 10px 10px 10px;
+  border-radius: 12px;
+  padding: 10px 8px 8px 8px;
   box-shadow: 
     0 0 0 1px rgba(255, 215, 0, 0.3),
     0 10px 30px rgba(0, 0, 0, 0.75),
@@ -580,16 +592,107 @@ html, body {
   margin-top: 2px;
 }
 
-.fsb-footer {
+/* ===================================================================
+ *  Bảng Lễ Vật Cúng Dường (Cột Phải Dưới Tấm Lòng Thành)
+ * =================================================================== */
+.gifts-side-banner {
+  width: 160px;
+  background: linear-gradient(165deg, rgba(32, 14, 8, 0.92) 0%, rgba(16, 7, 3, 0.95) 100%);
+  border: 1.2px solid var(--gold);
+  border-radius: 12px;
+  padding: 8px 8px 6px 8px;
+  box-shadow: 
+    0 0 0 1px rgba(255, 215, 0, 0.25),
+    0 8px 24px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  text-align: center;
+  pointer-events: none;
+}
+
+.gsb-header {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 5px;
+  margin-bottom: 2px;
+}
+
+.gsb-icon {
+  font-size: 13px;
+}
+
+.gsb-title {
+  font-family: var(--display);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold-bright);
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 6px rgba(255, 215, 0, 0.4);
+}
+
+.gsb-divider {
+  font-size: 8px;
+  color: var(--gold);
+  opacity: 0.7;
+  margin: 1px 0 4px 0;
+  letter-spacing: 2px;
+}
+
+.gsb-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: rgba(10, 4, 2, 0.5);
+  border-radius: 8px;
+  padding: 5px 6px;
+  border: 1px dashed rgba(217, 164, 65, 0.3);
+}
+
+.gsb-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10.5px;
+  line-height: 1.25;
+}
+
+.gsb-item-left {
+  display: flex;
+  align-items: center;
   gap: 4px;
-  font-size: 10px;
-  color: #f7d794;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  text-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gsb-item-icon {
+  font-size: 12px;
+}
+
+.gsb-item-name {
+  color: #f1e3c8;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 78px;
+}
+
+.gsb-item-coin {
+  color: var(--gold-bright);
+  font-weight: 700;
+  font-size: 9.5px;
+  background: rgba(138, 42, 30, 0.6);
+  padding: 1px 4px;
+  border-radius: 4px;
+  border: 0.5px solid rgba(255, 215, 0, 0.4);
+}
+
+.gsb-more {
+  font-size: 9.5px;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 2px;
 }
 
 /* ===================================================================

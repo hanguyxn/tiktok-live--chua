@@ -311,7 +311,38 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Cache lưu trữ các file âm thanh giọng đọc tiếng Việt (giúp phát tức thì 0ms)
 const ttsCache = new Map();
 
-// API Đọc Tiếng Việt Miễn Phí (Google Translate TTS tiếng Việt chuẩn 100%)
+// Tách văn bản dài thành các đoạn nhỏ dưới 160 ký tự để Google TTS đọc trọn vẹn 100% không bị ngắt
+function splitTextForTTS(text, maxLength = 160) {
+  const parts = [];
+  const sentences = text.split(/(?<=[.!?,\n])\s+/);
+  let current = '';
+
+  for (const s of sentences) {
+    if ((current + ' ' + s).trim().length <= maxLength) {
+      current = (current + ' ' + s).trim();
+    } else {
+      if (current) parts.push(current);
+      if (s.length <= maxLength) {
+        current = s;
+      } else {
+        const words = s.split(' ');
+        current = '';
+        for (const w of words) {
+          if ((current + ' ' + w).trim().length <= maxLength) {
+            current = (current + ' ' + w).trim();
+          } else {
+            if (current) parts.push(current);
+            current = w;
+          }
+        }
+      }
+    }
+  }
+  if (current) parts.push(current);
+  return parts.filter(p => p.length > 0);
+}
+
+// API Đọc Tiếng Việt Miễn Phí (Google Translate TTS tiếng Việt chuẩn 100%, hỗ trợ văn bản dài đầy đủ thơ và lời giải)
 app.get('/api/tts', async (req, res) => {
   const text = (req.query.text || '').trim();
   if (!text) {
@@ -327,32 +358,41 @@ app.get('/api/tts', async (req, res) => {
   }
 
   try {
-    const encoded = encodeURIComponent(text.slice(0, 180));
-    const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encoded}&tl=vi&client=tw-ob`;
+    const chunks = splitTextForTTS(text, 160);
+    const audioBuffers = [];
 
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    for (const chunk of chunks) {
+      const encoded = encodeURIComponent(chunk);
+      const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encoded}&tl=vi&client=tw-ob`;
+
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+      });
+
+      if (response.ok) {
+        const arrayBuffer = await response.arrayBuffer();
+        audioBuffers.push(Buffer.from(arrayBuffer));
       }
-    });
-
-    if (!response.ok) {
-      throw new Error(`Google TTS status: ${response.status}`);
     }
 
-    const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    if (audioBuffers.length === 0) {
+      throw new Error('TTS response was empty');
+    }
+
+    const fullBuffer = Buffer.concat(audioBuffers);
 
     // Lưu cache (tối đa 300 câu)
     if (ttsCache.size > 300) {
       const firstKey = ttsCache.keys().next().value;
       ttsCache.delete(firstKey);
     }
-    ttsCache.set(text, buffer);
+    ttsCache.set(text, fullBuffer);
 
     res.setHeader('Content-Type', 'audio/mpeg');
     res.setHeader('Cache-Control', 'public, max-age=86400');
-    res.send(buffer);
+    res.send(fullBuffer);
   } catch (err) {
     console.error('[TTS] Lỗi lấy giọng đọc tiếng Việt:', err.message);
     res.status(500).json({ error: err.message });
@@ -465,6 +505,7 @@ function getMusicTracksList() {
     const base = path.basename(file, ext);
     let friendlyName = base.replace(/_/g, ' ');
     if (file === 'loi_phat_day.m4a') friendlyName = 'Lời Phật Dạy – Nửa Đời Còn Lại Hãy Sống Chậm & Bình Yên';
+    else if (file === 'nhac_thien_buoi_sang.m4a') friendlyName = 'Nhạc Thiền Buổi Sáng – Tĩnh Tâm An Lạc';
     else if (file === 'music1.mp3') friendlyName = 'Nhạc Thiền Tịnh Tâm 1';
     else if (file === 'music2.mp3') friendlyName = 'Nhạc Thiền Tịnh Tâm 2';
 
@@ -1064,7 +1105,7 @@ async function startTikTokConnection(username, apiKey = '', cookie = '') {
 
   const connectionOptions = {
     processInitialData: false,
-    enableExtendedGiftInfo: true,
+    enableExtendedGiftInfo: false,
     fetchRoomInfoOnConnect: true,
     clientParams: {
       app_language: 'vi-VN',

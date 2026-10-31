@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/app.css">
+  <link rel="stylesheet" href="/app.css?v=20261101_09">
 </head>
 <body>
   <div id="wrap">
@@ -40,16 +40,31 @@
         </div>
       </div>
 
-      <!-- Bảng Tấm Lòng Thành (Top Donors) -->
-      <div id="board" hidden>
-        <div class="board-header">
-          <span class="board-icon">🏆</span>
-          <h3>Tấm Lòng Thành</h3>
+      <!-- Cột Phải: Bảng Tấm Lòng Thành & Bảng Quà Cúng Dường (dưới Công Đức) -->
+      <div id="rightStack" class="right-stack">
+        <!-- Bảng Tấm Lòng Thành (Top Donors) -->
+        <div id="board" hidden>
+          <div class="board-header">
+            <span class="board-icon">🏆</span>
+            <h3>Tấm Lòng Thành</h3>
+          </div>
+          <ol id="boardList"></ol>
         </div>
-        <ol id="boardList"></ol>
+
+        <!-- Bảng Lễ Vật Cúng Dường -->
+        <div id="giftsBanner" class="gifts-side-banner">
+          <div class="gsb-header">
+            <span class="gsb-icon">🪷</span>
+            <div class="gsb-title">LỄ VẬT CÚNG DƯỜNG</div>
+          </div>
+          <div class="gsb-divider">✦ ❖ ✦</div>
+          <div class="gsb-list" id="gsbList">
+            <!-- Dynamically populated from config.gifts -->
+          </div>
+        </div>
       </div>
 
-      <!-- Banner Hướng Dẫn Tặng Quà Bốc Quẻ (Center Bên Trái) -->
+      <!-- Banner Hướng Dẫn Tặng Quà Bốc Quẻ (Bên Trái Dưới Chữ Chùa Online) -->
       <div id="fortuneBanner" class="fortune-side-banner">
         <div class="fsb-header">
           <span class="fsb-icon">🥠</span>
@@ -59,10 +74,6 @@
         <div class="fsb-desc">Tặng quà để mở quẻ linh ứng</div>
         <div class="fsb-gifts-list" id="fsbGiftsList">
           <!-- Dynamically populated -->
-        </div>
-        <div class="fsb-footer">
-          <span class="fsb-sparkle">✨</span>
-          <span>Zoom-in & Giải quẻ</span>
         </div>
       </div>
 
@@ -134,6 +145,6 @@
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/app.js?v=20261101_07"></script>
+  <script src="/app.js?v=20261101_09"></script>
 </body>
 </html>

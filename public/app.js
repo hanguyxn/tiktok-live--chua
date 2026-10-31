@@ -82,34 +82,36 @@ let seats = [];
 
 function buildSeats() {
   seats.length = 0;
-  FLOOR.yTop = 1300;
-  FLOOR.yBot = Math.round(SH - 160);
-  FLOOR.xHalfTop = 240;
-  FLOOR.xHalfBot = Math.round(400 + Math.max(0, (FLOOR.yBot - 1790) * 0.22));
+  FLOOR.yTop = 1260;
+  FLOOR.yBot = Math.round(SH - 120);
+  FLOOR.xHalfTop = 260;
+  FLOOR.xHalfBot = Math.round(440 + Math.max(0, (FLOOR.yBot - 1790) * 0.22));
   DOOR.x = SW / 2;
   DOOR.y = SH + 140;
 
-  // Cấu hình các hàng ghế ngồi SAN SÁT NHAU, ấm cúng và trang nghiêm dưới chân bàn thờ
-  // Tránh hoàn toàn việc nhân vật ngồi đè lên bàn thờ hay tủ chuông mõ
+  // Cấu hình các hàng ghế kích thước thanh thoát, gọn gàng để Chánh Điện đón được đông đảo Phật tử (70 chỗ)
+  // Các hàng ghế được bố trí theo luật phối cảnh 2.5D, khoảng cách quây quần ấm cúng
   const ROW_CONFIGS = [
-    { r: 0, y: 1315, scale: 0.38, aisleHalf: 48, colStep: 78, colsPerSide: 4 },
-    { r: 1, y: 1405, scale: 0.44, aisleHalf: 54, colStep: 88, colsPerSide: 4 },
-    { r: 2, y: 1505, scale: 0.50, aisleHalf: 60, colStep: 98, colsPerSide: 4 },
-    { r: 3, y: 1615, scale: 0.57, aisleHalf: 68, colStep: 108, colsPerSide: 4 },
-    { r: 4, y: 1735, scale: 0.65, aisleHalf: 76, colStep: 118, colsPerSide: 3 }
+    { r: 0, y: 1275, scale: 0.28, aisleHalf: 38, colStep: 62, colsPerSide: 6 },
+    { r: 1, y: 1350, scale: 0.32, aisleHalf: 42, colStep: 68, colsPerSide: 6 },
+    { r: 2, y: 1430, scale: 0.37, aisleHalf: 48, colStep: 76, colsPerSide: 5 },
+    { r: 3, y: 1515, scale: 0.42, aisleHalf: 54, colStep: 86, colsPerSide: 5 },
+    { r: 4, y: 1610, scale: 0.48, aisleHalf: 62, colStep: 96, colsPerSide: 5 },
+    { r: 5, y: 1715, scale: 0.54, aisleHalf: 70, colStep: 108, colsPerSide: 4 },
+    { r: 6, y: 1825, scale: 0.60, aisleHalf: 78, colStep: 120, colsPerSide: 4 }
   ];
 
   if (SH > 1920) {
-    const extraRows = Math.floor((SH - 1920) / 150);
+    const extraRows = Math.floor((SH - 1920) / 110);
     for (let er = 0; er < extraRows; er++) {
-      const ey = 1855 + er * 150;
+      const ey = 1825 + (er + 1) * 110;
       ROW_CONFIGS.push({
-        r: 5 + er,
+        r: 7 + er,
         y: ey,
-        scale: 0.72 + er * 0.05,
-        aisleHalf: 84,
-        colStep: 128,
-        colsPerSide: 3
+        scale: Math.min(0.68, 0.60 + (er + 1) * 0.04),
+        aisleHalf: 86,
+        colStep: 125,
+        colsPerSide: 4
       });
     }
   }
@@ -119,8 +121,8 @@ function buildSeats() {
     for (let side = -1; side <= 1; side += 2) {
       for (let c = 0; c < rc.colsPerSide; c++) {
         const x = SW / 2 + side * (rc.aisleHalf + c * rc.colStep);
-        // Ưu tiên: hàng giữa (r = 1 hoặc 2) xếp trước, cột sát lối giữa (c = 0) xếp trước
-        const rowDist = Math.abs(rc.r - 1.5);
+        // Ưu tiên: hàng giữa (r = 2 hoặc 3) xếp trước, cột sát lối giữa (c = 0) xếp trước
+        const rowDist = Math.abs(rc.r - 2.5);
         const priority = rowDist * 10 + c * 2 + (side > 0 ? 1 : 0);
         generated.push({
           r: rc.r,
@@ -838,19 +840,22 @@ function roundRect(ctx, x, y, w, h, r) {
 
 function drawNameTag(rawText, x, y, s, isTopOne = false, isDonor = false) {
   let text = String(rawText || 'Phật tử').trim();
-  if (text.length > 13) {
-    text = text.slice(0, 12) + '…';
+  const maxLen = s < 0.34 ? 8 : (s < 0.44 ? 10 : 13);
+  if (text.length > maxLen) {
+    text = text.slice(0, maxLen - 1) + '…';
   }
 
-  ctx.font = `600 ${Math.round(23 * s + 8)}px "Noto Serif", Georgia, serif`;
+  const fontSize = Math.max(10, Math.round(19 * s + 7));
+  ctx.font = `600 ${fontSize}px "Noto Serif", Georgia, serif`;
   const textWidth = ctx.measureText(text).width;
-  const w = textWidth + (isTopOne ? 34 : 22);
-  const h = 28 * s + 10;
+  const padX = s < 0.34 ? (isTopOne ? 20 : 12) : (isTopOne ? 30 : 18);
+  const w = textWidth + padX;
+  const h = Math.max(15, Math.round(22 * s + 8));
 
   // Background pill với hiệu ứng bóng đổ nhẹ
   ctx.save();
   ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
-  ctx.shadowBlur = 6;
+  ctx.shadowBlur = 4;
   ctx.fillStyle = isTopOne ? 'rgba(138, 42, 30, 0.94)' : isDonor ? 'rgba(40, 20, 10, 0.88)' : 'rgba(18, 10, 7, 0.72)';
   roundRect(ctx, x - w / 2, y - h / 2, w, h, h / 2);
   ctx.fill();
@@ -859,24 +864,24 @@ function drawNameTag(rawText, x, y, s, isTopOne = false, isDonor = false) {
   // Viền vàng kim
   if (isTopOne || isDonor) {
     ctx.strokeStyle = isTopOne ? 'rgba(255, 215, 0, 0.95)' : 'rgba(217, 164, 65, 0.85)';
-    ctx.lineWidth = isTopOne ? 2.5 : 1.5;
+    ctx.lineWidth = isTopOne ? 2.0 : 1.2;
     ctx.stroke();
   }
 
   // Biểu tượng vương miện cho Top 1
   if (isTopOne) {
     ctx.fillStyle = '#ffd700';
-    ctx.font = `${Math.round(16 * s + 6)}px sans-serif`;
+    ctx.font = `${Math.round(14 * s + 5)}px sans-serif`;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
-    ctx.fillText('👑', x - w / 2 + 6, y);
+    ctx.fillText('👑', x - w / 2 + 5, y);
   }
 
   ctx.fillStyle = isTopOne ? '#fff3dc' : '#f1e3c8';
-  ctx.font = `600 ${Math.round(23 * s + 8)}px "Noto Serif", Georgia, serif`;
+  ctx.font = `600 ${fontSize}px "Noto Serif", Georgia, serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(text, isTopOne ? x + 8 : x, y + 1);
+  ctx.fillText(text, isTopOne ? x + 7 : x, y + 1);
 }
 
 function drawSpeechBubble(text, x, y, s, timer = 5.5, total = 5.5, t = 0) {
@@ -1148,9 +1153,9 @@ function render(now) {
     }
     const depthScale = Math.max(0, Math.min(1.4, (v.y - FLOOR.yTop) / Math.max(1, FLOOR.yBot - FLOOR.yTop)));
     const sc = (v.state === 'running_in' || v.state === 'walk' || v.state === 'walk_to_seat' || v.state === 'walk_out' || !v.seat)
-      ? (0.22 + 0.33 * depthScale)
+      ? (0.19 + 0.31 * depthScale)
       : v.seat.scale;
-    const s = Math.max(0.2, Math.min(0.75, sc));
+    const s = Math.max(0.18, Math.min(0.68, sc));
 
     v.bow = Math.max(0, v.bow - dt * 0.7);
     v.glow = Math.max(0, v.glow - dt * 0.5);

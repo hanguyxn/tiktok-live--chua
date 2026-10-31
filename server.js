@@ -568,8 +568,8 @@ app.post('/api/tiktok/fetch-viewers', async (req, res) => {
       });
     }
 
-    // 4. Bổ sung các thiện nam tín nữ để chánh điện đông vui trang nghiêm
-    const targetCount = Math.max(15, Math.min(collectedUsers.length > 0 ? collectedUsers.length + 8 : 22, 35));
+    // 4. Bổ sung các thiện nam tín nữ để chánh điện đông vui trang nghiêm (sức chứa 70 chỗ)
+    const targetCount = Math.max(25, Math.min(collectedUsers.length > 0 ? collectedUsers.length + 15 : 45, 65));
     const BUDDHIST_NAMES = [
       'Diệu Tâm', 'Quảng Thiện', 'Phúc An', 'Tịnh Viên', 'Chân Như',
       'Minh Đức', 'Huệ Tĩnh', 'Trí Hải', 'Tuệ Tâm', 'Liên Hoa',
@@ -594,7 +594,7 @@ app.post('/api/tiktok/fetch-viewers', async (req, res) => {
       }
     }
 
-    liveStats.activeDevotees = collectedUsers.slice(0, 50);
+    liveStats.activeDevotees = collectedUsers.slice(0, 70);
 
     console.log(`[TikTok] 🔄 Quét thủ công danh sách người xem: nạp ${collectedUsers.length} phật tử vào Chánh Điện!`);
 

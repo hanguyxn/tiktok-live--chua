@@ -89,29 +89,28 @@ function buildSeats() {
   DOOR.x = SW / 2;
   DOOR.y = SH + 140;
 
-  // Cấu hình các hàng ghế kích thước thanh thoát, gọn gàng để Chánh Điện đón được đông đảo Phật tử (70 chỗ)
+  // Cấu hình các hàng ghế kích thước vừa vặn, hài hòa để Phật tử nhìn rõ ràng, trang nghiêm mà vẫn ngồi được đông đảo
   // Các hàng ghế được bố trí theo luật phối cảnh 2.5D, khoảng cách quây quần ấm cúng
   const ROW_CONFIGS = [
-    { r: 0, y: 1275, scale: 0.28, aisleHalf: 38, colStep: 62, colsPerSide: 6 },
-    { r: 1, y: 1350, scale: 0.32, aisleHalf: 42, colStep: 68, colsPerSide: 6 },
-    { r: 2, y: 1430, scale: 0.37, aisleHalf: 48, colStep: 76, colsPerSide: 5 },
-    { r: 3, y: 1515, scale: 0.42, aisleHalf: 54, colStep: 86, colsPerSide: 5 },
-    { r: 4, y: 1610, scale: 0.48, aisleHalf: 62, colStep: 96, colsPerSide: 5 },
-    { r: 5, y: 1715, scale: 0.54, aisleHalf: 70, colStep: 108, colsPerSide: 4 },
-    { r: 6, y: 1825, scale: 0.60, aisleHalf: 78, colStep: 120, colsPerSide: 4 }
+    { r: 0, y: 1280, scale: 0.35, aisleHalf: 42, colStep: 72, colsPerSide: 5 },
+    { r: 1, y: 1360, scale: 0.40, aisleHalf: 48, colStep: 80, colsPerSide: 5 },
+    { r: 2, y: 1450, scale: 0.46, aisleHalf: 54, colStep: 90, colsPerSide: 4 },
+    { r: 3, y: 1550, scale: 0.52, aisleHalf: 62, colStep: 100, colsPerSide: 4 },
+    { r: 4, y: 1660, scale: 0.59, aisleHalf: 70, colStep: 112, colsPerSide: 4 },
+    { r: 5, y: 1780, scale: 0.67, aisleHalf: 80, colStep: 124, colsPerSide: 3 }
   ];
 
   if (SH > 1920) {
-    const extraRows = Math.floor((SH - 1920) / 110);
+    const extraRows = Math.floor((SH - 1920) / 125);
     for (let er = 0; er < extraRows; er++) {
-      const ey = 1825 + (er + 1) * 110;
+      const ey = 1780 + (er + 1) * 125;
       ROW_CONFIGS.push({
-        r: 7 + er,
+        r: 6 + er,
         y: ey,
-        scale: Math.min(0.68, 0.60 + (er + 1) * 0.04),
-        aisleHalf: 86,
-        colStep: 125,
-        colsPerSide: 4
+        scale: Math.min(0.75, 0.67 + (er + 1) * 0.05),
+        aisleHalf: 88,
+        colStep: 130,
+        colsPerSide: 3
       });
     }
   }
@@ -709,7 +708,7 @@ const SUTRA_CHIC = [
   'Nguyện đem công đức này hướng về tất cả chúng sinh'
 ];
 
-function triggerDonation(v, coins, kind = 'lotus', text = '', prayer = '') {
+function triggerDonation(v, coins, kind = 'lotus', text = '', prayer = '', hasFortune = false) {
   if (!v) return;
   v.coins += coins;
   v.glow = 1.0;
@@ -777,7 +776,9 @@ function triggerDonation(v, coins, kind = 'lotus', text = '', prayer = '') {
 
   addFeedMessage(v.name, `cúng dường ${label} ×${coins}` + (prayerBlessing ? ` · "${prayerBlessing}"` : ''), true);
   showToast(`📜 Cầu an cho ${v.name}: "${prayerBlessing}" 🙏`);
-  if (config.tts?.enabledGift !== false) {
+  
+  // Nếu có bốc quẻ thì nhường phần đọc TTS cho quẻ xăm giải quẻ, tránh đọc 2 lần liên tục
+  if (config.tts?.enabledGift !== false && !hasFortune) {
     const cleanDonor = cleanSpeakerName(v.name);
     speakBlessing(`Công đức phật tử ${cleanDonor} cúng dường ${label}. ${prayerBlessing}. Nam mô A Di Đà Phật.`);
   }
@@ -841,17 +842,17 @@ function roundRect(ctx, x, y, w, h, r) {
 
 function drawNameTag(rawText, x, y, s, isTopOne = false, isDonor = false) {
   let text = String(rawText || 'Phật tử').trim();
-  const maxLen = s < 0.34 ? 8 : (s < 0.44 ? 10 : 13);
+  const maxLen = s < 0.38 ? 9 : (s < 0.50 ? 11 : 14);
   if (text.length > maxLen) {
     text = text.slice(0, maxLen - 1) + '…';
   }
 
-  const fontSize = Math.max(10, Math.round(19 * s + 7));
+  const fontSize = Math.max(11, Math.round(21 * s + 7));
   ctx.font = `600 ${fontSize}px "Noto Serif", Georgia, serif`;
   const textWidth = ctx.measureText(text).width;
-  const padX = s < 0.34 ? (isTopOne ? 20 : 12) : (isTopOne ? 30 : 18);
+  const padX = isTopOne ? 28 : (s < 0.40 ? 16 : 20);
   const w = textWidth + padX;
-  const h = Math.max(15, Math.round(22 * s + 8));
+  const h = Math.max(16, Math.round(24 * s + 8));
 
   // Background pill với hiệu ứng bóng đổ nhẹ
   ctx.save();
@@ -872,7 +873,7 @@ function drawNameTag(rawText, x, y, s, isTopOne = false, isDonor = false) {
   // Biểu tượng vương miện cho Top 1
   if (isTopOne) {
     ctx.fillStyle = '#ffd700';
-    ctx.font = `${Math.round(14 * s + 5)}px sans-serif`;
+    ctx.font = `${Math.round(15 * s + 5)}px sans-serif`;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     ctx.fillText('👑', x - w / 2 + 5, y);
@@ -1382,9 +1383,9 @@ function render(now) {
     }
     const depthScale = Math.max(0, Math.min(1.4, (v.y - FLOOR.yTop) / Math.max(1, FLOOR.yBot - FLOOR.yTop)));
     const sc = (v.state === 'running_in' || v.state === 'walk' || v.state === 'walk_to_seat' || v.state === 'walk_out' || !v.seat)
-      ? (0.19 + 0.31 * depthScale)
+      ? (0.24 + 0.38 * depthScale)
       : v.seat.scale;
-    const s = Math.max(0.18, Math.min(0.68, sc));
+    const s = Math.max(0.24, Math.min(0.76, sc));
 
     v.bow = Math.max(0, v.bow - dt * 0.7);
     v.glow = Math.max(0, v.glow - dt * 0.5);
@@ -1714,6 +1715,9 @@ socket.on('tiktok_follow', (data) => {
   bell(false);
 });
 
+// Bộ nhớ chống lặp bốc quẻ client-side
+const recentClientFortunes = new Map();
+
 socket.on('gift_triggered', (data) => {
   const user = data.user || {};
   const name = user.nickname || user.name || user.uniqueId || 'Phật tử';
@@ -1748,16 +1752,26 @@ socket.on('gift_triggered', (data) => {
   else if (actionType.includes('petal') || actionType.includes('hoa') || actionType.includes('rose')) fxKind = 'petal';
 
   const prayerText = data.prayer || SUTRA_CHIC[Math.floor(Math.random() * SUTRA_CHIC.length)];
-  triggerDonation(v, points, fxKind, prayerText, data.prayer);
+  const hasFortune = Boolean(data.fortune);
+  triggerDonation(v, points, fxKind, prayerText, data.prayer, hasFortune);
 
   // Nếu tặng quà nhận được Quẻ Xăm -> Xếp hàng Zoom-in và phát quẻ
   if (data.fortune) {
-    queueFortune({
-      user,
-      gift,
-      fortune: data.fortune,
-      durationSec: data.durationSec || 7.0
-    });
+    const uId = user.id || user.uniqueId || name;
+    const now = Date.now();
+    const lastDraw = recentClientFortunes.get(uId) || 0;
+    // Chống spam bốc quẻ liên tiếp cho cùng 1 người trong vòng 4s
+    if (now - lastDraw < 4000) {
+      console.log(`[Quẻ Xăm] Bỏ qua bốc quẻ trùng lặp cho ${name}`);
+    } else {
+      recentClientFortunes.set(uId, now);
+      queueFortune({
+        user,
+        gift,
+        fortune: data.fortune,
+        durationSec: data.durationSec || 7.0
+      });
+    }
   }
 });
 

@@ -15,7 +15,7 @@
       "sound": "incense",
       "enabled": true,
       "description": "Thắp nén hương thơm vào lư đồng, khói tỏa thanh tịnh",
-      "canDrawFortune": true
+      "canDrawFortune": false
     },
     {
       "id": "gift_finger_heart",
@@ -28,7 +28,7 @@
       "sound": "bell_soft",
       "enabled": true,
       "description": "Thắp sáng hàng nến hoa sen lung linh ấm áp",
-      "canDrawFortune": true
+      "canDrawFortune": false
     },
     {
       "id": "gift_flower",
@@ -41,7 +41,7 @@
       "sound": "chime",
       "enabled": true,
       "description": "Dâng đóa hoa sen ngát hương lên tòa sen Phật",
-      "canDrawFortune": true
+      "canDrawFortune": false
     },
     {
       "id": "gift_donut",
@@ -67,7 +67,7 @@
       "sound": "blessing",
       "enabled": true,
       "description": "Dâng mâm ngũ quả cầu sung túc tài lộc bình an",
-      "canDrawFortune": true
+      "canDrawFortune": false
     },
     {
       "id": "gift_corgi",
@@ -80,7 +80,7 @@
       "sound": "water_splash",
       "enabled": true,
       "description": "Phóng sinh đàn cá chép vàng lội suối bơi qua hồ sen",
-      "canDrawFortune": true
+      "canDrawFortune": false
     },
     {
       "id": "gift_money_gun",
@@ -93,7 +93,7 @@
       "sound": "celestial",
       "enabled": true,
       "description": "Thả hoa đăng lung linh cầu nguyện quốc thái dân an",
-      "canDrawFortune": true
+      "canDrawFortune": false
     },
     {
       "id": "gift_lion",
@@ -106,14 +106,14 @@
       "sound": "dragon_roar",
       "enabled": true,
       "description": "Kim Long hộ pháp giáng thế bay lượn hào quang chói lòa",
-      "canDrawFortune": true
+      "canDrawFortune": false
     }
   ],
   "goals": {
-    "likeGoal": 3200,
+    "likeGoal": 30000,
     "likeCurrent": 3359,
     "likeReward": "Phật phát hào quang",
-    "shareGoal": 10,
+    "shareGoal": 999,
     "shareCurrent": 129,
     "shareReward": "Mưa vàng"
   },
@@ -138,6 +138,12 @@
       "name": "tm",
       "nickname": "tm",
       "points": 103
+    },
+    {
+      "id": "sim_315",
+      "name": "Phật_Tử_759",
+      "nickname": "Diệu Tâm",
+      "points": 30
     },
     {
       "id": "user_17934697623395tn6",
@@ -216,12 +222,6 @@
       "name": "❤Bé Nắc❤",
       "nickname": "❤Bé Nắc❤",
       "points": 2
-    },
-    {
-      "id": "user_1793470401494w48k",
-      "name": "Pies",
-      "nickname": "Pies",
-      "points": 2
     }
   ],
   "tiktok": {
@@ -251,22 +251,15 @@
   "currentBackground": "/assets/template_classic.jpg",
   "fortune": {
     "enabled": true,
-    "minCoins": 1,
+    "minCoins": 5,
     "durationSec": 7,
     "zoomLevel": 1.75,
     "ttsEnabled": true,
-    "mode": "all",
+    "mode": "specific",
     "showBanner": true,
     "bannerTitle": "BỐC QUẺ BẢN MỆNH",
     "allowedGiftIds": [
-      "gift_rose",
-      "gift_finger_heart",
-      "gift_flower",
-      "gift_donut",
-      "gift_heart_hands",
-      "gift_corgi",
-      "gift_money_gun",
-      "gift_lion"
+      "gift_donut"
     ]
   },
   "fortunes": [

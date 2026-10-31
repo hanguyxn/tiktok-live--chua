@@ -1064,7 +1064,7 @@ async function startTikTokConnection(username, apiKey = '', cookie = '') {
 
   const connectionOptions = {
     processInitialData: false,
-    enableExtendedGiftInfo: false,
+    enableExtendedGiftInfo: true,
     fetchRoomInfoOnConnect: true,
     clientParams: {
       app_language: 'vi-VN',
@@ -1173,18 +1173,55 @@ function setupTikTokEventHandlers(conn) {
     });
   });
 
+  // Bộ nhớ đệm chống sự kiện quà trùng lặp từ WebSocket TikTok
+  const processedGiftKeys = new Map();
+
   // 2. Tặng Quà (Gift)
   conn.on('gift', (data) => {
-    if (data.giftType === 1 && !data.repeatEnd) {
+    // Nhận biết quà có tính năng combo / streak (chuỗi nhấp quà liên tục như Hoa Hồng, Tim ngón tay...)
+    const isCombo = Boolean(
+      data.giftType === 1 ||
+      data.gift?.type === 1 ||
+      data.gift?.combo === true ||
+      data.extendedGiftInfo?.combo === true ||
+      data.extendedGiftInfo?.type === 1 ||
+      (data.groupId && data.groupId !== '0' && data.groupId !== 0)
+    );
+    const isFinished = Boolean(data.repeatEnd || data.repeat_end === 1);
+
+    // Nếu là quà combo và chưa kết thúc chuỗi -> bỏ qua các sự kiện trung gian
+    if (isCombo && !isFinished) {
       return;
     }
 
     const user = extractTikTokUser(data);
-    const giftName = data.giftDetails?.giftName || data.giftName || 'Quà công đức';
+    const giftName = data.extendedGiftInfo?.name || data.giftDetails?.giftName || data.gift?.name || data.giftName || 'Quà công đức';
     const repeatCount = data.repeatCount || 1;
-    const diamonds = (data.diamondCount || 1) * repeatCount;
+    const singleDiamond = data.extendedGiftInfo?.diamond_count || data.diamondCount || data.gift?.diamondCount || 1;
+    const diamonds = singleDiamond * repeatCount;
 
-    console.log(`[TikTok] 🎁 ${user.name} tặng ${repeatCount}x ${giftName} (${diamonds} kim cương)`);
+    // Deduplication: Chống TikTok gửi lặp lại cùng 1 gói quà qua WebSocket
+    const dedupeId = data.orderId || data.groupId || data.logId || data.common?.msgId;
+    const dedupeKey = dedupeId ? String(dedupeId) : `${user.id}_${giftName}_${repeatCount}_${Math.floor(Date.now() / 2000)}`;
+
+    const now = Date.now();
+    if (processedGiftKeys.has(dedupeKey)) {
+      const prevTime = processedGiftKeys.get(dedupeKey);
+      if (now - prevTime < 20000) {
+        console.log(`[TikTok] ⚠️ Bỏ qua sự kiện quà trùng lặp (Dedupe): ${dedupeKey} (${giftName})`);
+        return;
+      }
+    }
+    processedGiftKeys.set(dedupeKey, now);
+
+    // Tự động dọn dẹp cache
+    if (processedGiftKeys.size > 200) {
+      for (const [k, t] of processedGiftKeys.entries()) {
+        if (now - t > 30000) processedGiftKeys.delete(k);
+      }
+    }
+
+    console.log(`[TikTok] 🎁 ${user.name} tặng ${repeatCount}x ${giftName} (${diamonds} kim cương) [Đã xác nhận hoàn tất]`);
     processGiftEvent(user, giftName, repeatCount, diamonds);
   });
 

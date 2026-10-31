@@ -186,6 +186,16 @@ if (!appConfig.fortune) {
 if (!Array.isArray(appConfig.fortunes) || appConfig.fortunes.length === 0) {
   appConfig.fortunes = DEFAULT_FORTUNES;
 }
+
+if (!appConfig.autoCleanup) {
+  appConfig.autoCleanup = {
+    enabled: true,
+    timeoutSec: 90,
+    keepDonors: true,
+    donorTimeoutSec: 300
+  };
+}
+
 saveConfig(appConfig);
 
 // Thống kê phòng live hiện tại
@@ -699,6 +709,58 @@ app.post('/api/fortune/test', (req, res) => {
     io.emit('fortune_drawn', payload);
     console.log(`[Quẻ Xăm] 🧪 Admin test bốc quẻ cho ${devotee.name}: ${randFortune.number} - ${randFortune.grade}`);
     res.json({ success: true, message: `Đã phát lệnh bốc quẻ thử nghiệm cho "${devotee.name}"!`, payload });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ========================================================
+// TỰ ĐỘNG DỌN DẸP NGƯỜI KHÔNG CÒN Ở TRONG LIVE
+// ========================================================
+app.get('/api/cleanup/config', (req, res) => {
+  res.json({
+    success: true,
+    autoCleanup: appConfig.autoCleanup || {
+      enabled: true,
+      timeoutSec: 90,
+      keepDonors: true,
+      donorTimeoutSec: 300
+    }
+  });
+});
+
+app.post('/api/cleanup/config', (req, res) => {
+  try {
+    const { enabled, timeoutSec, keepDonors, donorTimeoutSec } = req.body;
+    if (!appConfig.autoCleanup) appConfig.autoCleanup = {};
+    if (typeof enabled === 'boolean') appConfig.autoCleanup.enabled = enabled;
+    if (timeoutSec !== undefined) appConfig.autoCleanup.timeoutSec = Math.max(30, parseInt(timeoutSec, 10) || 90);
+    if (typeof keepDonors === 'boolean') appConfig.autoCleanup.keepDonors = keepDonors;
+    if (donorTimeoutSec !== undefined) appConfig.autoCleanup.donorTimeoutSec = Math.max(60, parseInt(donorTimeoutSec, 10) || 300);
+
+    saveConfig(appConfig);
+    io.emit('config_updated', appConfig);
+
+    console.log('[Dọn Dẹp] ⚙️ Cập nhật cấu hình tự dọn dẹp:', appConfig.autoCleanup);
+    res.json({ success: true, message: 'Đã lưu cấu hình tự dọn dẹp thành công!', autoCleanup: appConfig.autoCleanup });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/cleanup/trigger', (req, res) => {
+  try {
+    const timeoutSec = appConfig.autoCleanup?.timeoutSec || 90;
+    const keepDonors = appConfig.autoCleanup?.keepDonors !== false;
+
+    io.emit('cleanup_inactive_viewers', {
+      timeoutSec,
+      keepDonors,
+      timestamp: Date.now()
+    });
+
+    console.log(`[Dọn Dẹp] 🧹 Admin kích hoạt dọn dẹp người xem không còn ở trong live (ngưỡng: ${timeoutSec}s)`);
+    res.json({ success: true, message: 'Đã phát lệnh dọn dẹp người xem rời live tới Chánh Điện!' });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

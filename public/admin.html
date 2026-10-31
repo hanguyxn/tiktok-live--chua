@@ -102,6 +102,7 @@
                 <button id="btn-connect-tiktok" class="btn btn-primary">🔗 Kết Nối</button>
                 <button id="btn-disconnect-tiktok" class="btn btn-danger" style="display: none;">❌ Ngắt Kết Nối</button>
                 <button id="btn-fetch-viewers" class="btn btn-warning" style="background: #d35400; border-color: #ba4a00; font-weight: bold;">🔄 Quét & Nạp Người Xem</button>
+                <button id="btn-quick-cleanup-viewers" class="btn btn-secondary" style="background: #2c3e50; border-color: #34495e; font-weight: bold;">🧹 Dọn Người Rời Live</button>
               </div>
               <div id="fetch-viewers-alert" style="display: none; margin-top: 10px; padding: 10px 14px; border-radius: 8px; background: rgba(230, 126, 34, 0.18); border: 1px solid #e67e22; color: #ffd700; font-size: 13px;"></div>
               <small class="helper-text">💡 <strong>Mẹo:</strong> Bấm <em>"🔍 Kiểm Tra Phòng Live"</em> để xem trước tiêu đề, số người xem và trạng thái phòng trước khi kết nối.</small>
@@ -532,6 +533,52 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- CARD: TỰ ĐỘNG DỌN DẸP NGƯỜI RỜI LIVE -->
+        <div class="card mt-4" style="border: 2px solid rgba(46, 204, 113, 0.45);">
+          <div class="card-header" style="background: rgba(46, 204, 113, 0.08); display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h3 style="color: #2ecc71; margin: 0;">🧹 Tự Động Dọn Dẹp Người Không Còn Ở Trong Live</h3>
+              <p style="margin: 4px 0 0 0; font-size: 13px; color: #ccc;">Khi người xem tắt app, thoát live hoặc không còn tương tác, nhân vật sẽ tự động đứng dậy bước ra khỏi Chánh Điện</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button id="btn-trigger-cleanup" class="btn btn-warning" style="background: #e67e22; border: none; font-weight: bold;">🧹 Dọn Dẹp Ngay</button>
+              <button id="btn-save-cleanup" class="btn btn-primary">💾 Lưu Cài Đặt Dọn Dẹp</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="grid-2-col">
+              <div>
+                <div class="checkbox-group">
+                  <label style="font-size: 15px; font-weight: bold; color: #2ecc71;">
+                    <input type="checkbox" id="chk-cleanup-enabled" checked> Bật tự động dọn dẹp người đã rời live
+                  </label>
+                  <label style="font-size: 14px; font-weight: 600; color: #ffd700; margin-top: 8px;">
+                    <input type="checkbox" id="chk-cleanup-keep-donors" checked> Giữ lại Phật tử đã cúng dường (Donors) lâu hơn
+                  </label>
+                </div>
+                <div style="margin-top: 10px; font-size: 13px; color: #ccc; line-height: 1.6; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px;">
+                  <p style="margin: 0 0 6px 0;">✨ <strong>Quy trình dọn dẹp tự nhiên:</strong> Nhân vật đứng dậy, nhường bồ đoàn cho người mới, bước xuống lối đi thảm giữa và ra về trang nghiêm.</p>
+                  <p style="margin: 0;">💡 Bất cứ khi nào người xem chat, thả tim hay tặng quà, thời gian lưu lại sẽ tự động được làm mới!</p>
+                </div>
+              </div>
+
+              <div>
+                <div class="form-group">
+                  <label for="input-cleanup-timeout">Thời gian chờ khi người xem không tương tác (giây):</label>
+                  <input type="number" id="input-cleanup-timeout" value="90" min="30" max="600" class="form-control">
+                  <small class="helper-text">Sau số giây này không có chat, like hay quà, nhân vật sẽ tự động bước ra về (mặc định 90s).</small>
+                </div>
+                <div class="form-group mt-3">
+                  <label for="input-cleanup-donor-timeout">Thời gian giữ lại Phật tử cúng dường (giây):</label>
+                  <input type="number" id="input-cleanup-donor-timeout" value="300" min="60" max="1800" class="form-control">
+                  <small class="helper-text">Phật tử đã gửi quà sẽ được trân trọng lưu lại Chánh Điện lâu hơn (mặc định 300s = 5 phút).</small>
+                </div>
+              </div>
+            </div>
+            <div id="cleanup-alert" style="display: none; margin-top: 15px; padding: 10px 14px; border-radius: 8px; background: rgba(46, 204, 113, 0.2); border: 1px solid #2ecc71; color: #2ecc71; font-weight: bold; text-align: center;"></div>
           </div>
         </div>
       </section>

@@ -773,6 +773,7 @@ socket.on('init_state', (data) => {
   loadMusicList();
   loadTemplatesList();
   loadFortuneSettings();
+  loadCleanupSettings();
 
   if (currentConfig.temple) {
     if (inputTempleName) inputTempleName.value = currentConfig.temple.name || 'Chùa Online';
@@ -1454,4 +1455,106 @@ if (btnTestFortune) {
       }, 1500);
     }
   });
+}
+
+// ========================================================
+// TỰ ĐỘNG DỌN DẸP NGƯỜI KHÔNG CÒN Ở TRONG LIVE
+// ========================================================
+async function loadCleanupSettings() {
+  try {
+    const res = await fetch('/api/cleanup/config');
+    const data = await res.json();
+    if (!data.success) return;
+
+    const cCfg = data.autoCleanup || {};
+    const chkEnabled = document.getElementById('chk-cleanup-enabled');
+    const chkKeepDonors = document.getElementById('chk-cleanup-keep-donors');
+    const inTimeout = document.getElementById('input-cleanup-timeout');
+    const inDonorTimeout = document.getElementById('input-cleanup-donor-timeout');
+
+    if (chkEnabled) chkEnabled.checked = cCfg.enabled !== false;
+    if (chkKeepDonors) chkKeepDonors.checked = cCfg.keepDonors !== false;
+    if (inTimeout) inTimeout.value = cCfg.timeoutSec || 90;
+    if (inDonorTimeout) inDonorTimeout.value = cCfg.donorTimeoutSec || 300;
+  } catch (err) {
+    console.warn('[Dọn Dẹp] Lỗi tải cấu hình dọn dẹp:', err.message);
+  }
+}
+
+// Lưu cài đặt dọn dẹp
+const btnSaveCleanup = document.getElementById('btn-save-cleanup');
+if (btnSaveCleanup) {
+  btnSaveCleanup.addEventListener('click', async () => {
+    const enabled = document.getElementById('chk-cleanup-enabled')?.checked ?? true;
+    const keepDonors = document.getElementById('chk-cleanup-keep-donors')?.checked ?? true;
+    const timeoutSec = parseInt(document.getElementById('input-cleanup-timeout')?.value, 10) || 90;
+    const donorTimeoutSec = parseInt(document.getElementById('input-cleanup-donor-timeout')?.value, 10) || 300;
+
+    btnSaveCleanup.disabled = true;
+    btnSaveCleanup.textContent = '⏳ Đang lưu...';
+
+    try {
+      const res = await fetch('/api/cleanup/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled, keepDonors, timeoutSec, donorTimeoutSec })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('✅ Đã lưu cài đặt tự động dọn dẹp thành công!');
+      } else {
+        alert('Lỗi lưu cài đặt: ' + (data.error || 'Lỗi'));
+      }
+    } catch (err) {
+      alert('Lỗi kết nối: ' + err.message);
+    } finally {
+      btnSaveCleanup.disabled = false;
+      btnSaveCleanup.textContent = '💾 Lưu Cài Đặt Dọn Dẹp';
+    }
+  });
+}
+
+// Kích hoạt dọn dẹp tức thì
+async function triggerImmediateCleanup(btnEl) {
+  if (btnEl) {
+    btnEl.disabled = true;
+    btnEl.textContent = '⏳ Đang dọn dẹp...';
+  }
+
+  const alertBox = document.getElementById('cleanup-alert');
+
+  try {
+    const res = await fetch('/api/cleanup/trigger', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const data = await res.json();
+    if (data.success) {
+      if (alertBox) {
+        alertBox.style.display = 'block';
+        alertBox.textContent = '🧹 Đã gửi lệnh dọn dẹp người xem rời live! Các phật tử hết hạn đang bước ra về.';
+        setTimeout(() => { if (alertBox) alertBox.style.display = 'none'; }, 5000);
+      }
+      alert('🧹 Đã phát lệnh dọn dẹp người xem không còn ở trong live!');
+    } else {
+      alert('Lỗi kích hoạt dọn dẹp: ' + (data.error || 'Lỗi'));
+    }
+  } catch (err) {
+    alert('Lỗi kết nối: ' + err.message);
+  } finally {
+    if (btnEl) {
+      btnEl.disabled = false;
+      btnEl.textContent = btnEl.id === 'btn-quick-cleanup-viewers' ? '🧹 Dọn Người Rời Live' : '🧹 Dọn Dẹp Ngay';
+    }
+  }
+}
+
+const btnTriggerCleanup = document.getElementById('btn-trigger-cleanup');
+if (btnTriggerCleanup) {
+  btnTriggerCleanup.addEventListener('click', () => triggerImmediateCleanup(btnTriggerCleanup));
+}
+
+const btnQuickCleanupViewers = document.getElementById('btn-quick-cleanup-viewers');
+if (btnQuickCleanupViewers) {
+  btnQuickCleanupViewers.addEventListener('click', () => triggerImmediateCleanup(btnQuickCleanupViewers));
 }

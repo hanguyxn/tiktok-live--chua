@@ -275,9 +275,9 @@ function addVisitor(userOrName, skin, instant = false, userId = null, isBot = fa
     nickname = userOrName;
   }
 
-  const staySec = (config.bot && config.bot.stayDurationSec) ? config.bot.stayDurationSec : 60;
-  // Người thật vào ở 75-90s, bot ở 45-65s
-  const stayDuration = isBot ? (staySec * (0.8 + Math.random() * 0.4)) : (staySec * 1.3 + Math.random() * 15);
+  const baseTimeout = (config.autoCleanup && config.autoCleanup.timeoutSec) ? config.autoCleanup.timeoutSec : 90;
+  // Người thật ở 90-115s (tự động làm mới khi có tương tác), bot ở 45-65s
+  const stayDuration = isBot ? (45 + Math.random() * 20) : (baseTimeout + Math.random() * 25);
 
   const RUNNING_SKINS = ['man', 'woman', 'granny'];
   const chosenSkin = (skin && ANIM[skin]) ? skin : RUNNING_SKINS[Math.floor(Math.random() * RUNNING_SKINS.length)];
@@ -314,6 +314,7 @@ function addVisitor(userOrName, skin, instant = false, userId = null, isBot = fa
     speechTotal: 6.0,
     isBot: Boolean(isBot),
     stayTimer: stayDuration,
+    lastActiveTime: Date.now(),
     createdAt: Date.now()
   };
 
@@ -1247,9 +1248,20 @@ function render(now) {
         v.frame = 7;
       }
     } else if (v.state === 'sit') {
-      // Phật tử ngồi thiền tĩnh lặng - chỉ rời đi khi bị thay thế bởi người mới (fade_out)
+      // Đếm ngược thời gian lưu lại Chánh Điện
       if (v.stayTimer > 0) {
         v.stayTimer -= dt;
+      } else if (config.autoCleanup?.enabled !== false) {
+        // Tự động dọn dẹp khi người xem không còn ở trong live (hết stayTimer và không có tương tác mới)
+        const isDonor = v.coins > 0;
+        const keepDonors = config.autoCleanup?.keepDonors !== false;
+        const donorMaxStay = (config.autoCleanup?.donorTimeoutSec || 300);
+        const inactiveAge = (Date.now() - (v.lastActiveTime || v.createdAt || 0)) / 1000;
+
+        // Nếu là phật tử cúng dường thì giữ lại lâu hơn (mặc định 5 phút), phật tử thường dọn sau khi hết thời gian
+        if (!isDonor || (!keepDonors || inactiveAge > donorMaxStay)) {
+          startVisitorExit(v);
+        }
       }
     } else if (v.state === 'standing') {
       v.standT += dt;
@@ -1540,7 +1552,8 @@ socket.on('tiktok_member', (data) => {
     // Phật tử bước từ lối đi giữa vào bồ đoàn trong ~0.7s
     v = addVisitor(user, SKINS[Math.floor(Math.random() * SKINS.length)], false, user.id, false);
   } else {
-    v.stayTimer = Math.max(v.stayTimer, (config.bot?.stayDurationSec || 60) * 1.5);
+    v.lastActiveTime = Date.now();
+    v.stayTimer = Math.max(v.stayTimer, (config.autoCleanup?.timeoutSec || 90));
     v.bow = 0.6;
   }
 
@@ -1573,6 +1586,8 @@ socket.on('tiktok_chat', (data) => {
   }
 
   if (v) {
+    v.lastActiveTime = Date.now();
+    v.stayTimer = Math.max(v.stayTimer, (config.autoCleanup?.timeoutSec || 90));
     v.bow = 1.0;
     v.speech = comment;
     v.speechTimer = 6.0; // Hiện bong bóng chat nổi bật trong 6.0 giây
@@ -1596,6 +1611,8 @@ socket.on('tiktok_like', (data) => {
       // Người thả tim chạy ngay vào chánh điện!
       v = addVisitor(user, null, false, user.id, false);
     } else {
+      v.lastActiveTime = Date.now();
+      v.stayTimer = Math.max(v.stayTimer, (config.autoCleanup?.timeoutSec || 90));
       v.bow = Math.max(v.bow, 0.4);
     }
   }
@@ -1652,7 +1669,8 @@ socket.on('gift_triggered', (data) => {
       v.y = v.seat.y;
       v.state = 'sit';
     }
-    v.stayTimer = Math.max(v.stayTimer, 240);
+    v.lastActiveTime = Date.now();
+    v.stayTimer = Math.max(v.stayTimer, (config.autoCleanup?.donorTimeoutSec || 300));
   }
 
   // Ánh xạ quà tặng sang loại biểu tượng
@@ -1681,6 +1699,34 @@ socket.on('fortune_drawn', (data) => {
   if (!data || !data.fortune) return;
   console.log('[Quẻ Xăm] 🥠 Nhận sự kiện bốc quẻ:', data.fortune.number, data.user?.name);
   queueFortune(data);
+});
+
+// ─── Tự Động Dọn Dẹp Người Không Còn Ở Trong Live ─────────────────
+socket.on('cleanup_inactive_viewers', (data) => {
+  const timeoutSec = (data && data.timeoutSec) ? data.timeoutSec : (config.autoCleanup?.timeoutSec || 90);
+  const keepDonors = (data && typeof data.keepDonors === 'boolean') ? data.keepDonors : (config.autoCleanup?.keepDonors !== false);
+  const now = Date.now();
+
+  let count = 0;
+  visitors.forEach((v) => {
+    if (v.state === 'sit' || v.state === 'sitting') {
+      const isDonor = v.coins > 0;
+      const inactiveSec = (now - (v.lastActiveTime || v.createdAt || 0)) / 1000;
+
+      if ((!isDonor || !keepDonors) && (v.stayTimer <= 15 || inactiveSec >= timeoutSec)) {
+        setTimeout(() => {
+          if (v && v.state === 'sit') {
+            startVisitorExit(v);
+          }
+        }, count * 350);
+        count++;
+      }
+    }
+  });
+
+  if (count > 0) {
+    showToast(`🧹 Đang dọn dẹp ${count} người xem đã rời phòng live`);
+  }
 });
 
 // ─── Lời Thoại Thầy Trụ Trì Từ Admin ──────────────────────────────

@@ -126,6 +126,12 @@
   },
   "leaderboard": [
     {
+      "id": "user_17934719167130gmw",
+      "name": "tm",
+      "nickname": "tm",
+      "points": 103
+    },
+    {
       "id": "user_17934697623395tn6",
       "name": "Đinh Nhanh",
       "nickname": "Đinh Nhanh",
@@ -208,12 +214,6 @@
       "name": "Pies",
       "nickname": "Pies",
       "points": 2
-    },
-    {
-      "id": "user_1793470491625ruea",
-      "name": "Ngoc Trâmm💋",
-      "nickname": "Ngoc Trâmm💋",
-      "points": 2
     }
   ],
   "tiktok": {
@@ -223,7 +223,7 @@
     "cookie": "sessionid=abc123456789; tt-target-idc=alisg"
   },
   "tts": {
-    "enabledMember": false,
+    "enabledMember": true,
     "enabledGift": true,
     "memberTemplate": "Hoan nghênh {name} vào chánh điện",
     "speed": 1.17,
@@ -357,5 +357,11 @@
       "meaning": "Giải tỏa mọi ưu tư sầu muộn, buông bỏ chấp niệm, tìm lại sự nhẹ nhàng thanh thản.",
       "advice": "Tập buông xả, không cố chấp chuyện cũ, trân trọng giây phút hiện tại."
     }
-  ]
+  ],
+  "autoCleanup": {
+    "enabled": true,
+    "timeoutSec": 90,
+    "keepDonors": true,
+    "donorTimeoutSec": 300
+  }
 }

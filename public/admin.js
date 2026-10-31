@@ -1053,6 +1053,7 @@ function renderMusicTable(tracks, currentTrack) {
         });
         const data = await res.json();
         if (data.success) {
+          if (currentConfig) currentConfig.currentTrack = data.currentTrack || fileName;
           loadMusicList();
         } else {
           alert('Không thể đổi bài nhạc: ' + (data.error || 'Lỗi'));
@@ -1086,6 +1087,7 @@ function renderMusicTable(tracks, currentTrack) {
         const res = await fetch('/api/music/' + encodeURIComponent(fileName), { method: 'DELETE' });
         const data = await res.json();
         if (data.success) {
+          if (currentConfig) currentConfig.currentTrack = data.currentTrack || fileName;
           loadMusicList();
         } else {
           alert('Không thể xóa file: ' + (data.error || 'Lỗi'));
@@ -1166,7 +1168,16 @@ if (btnUploadMusic && musicFileInput) {
 
 socket.on('music_list_updated', (data) => {
   if (data && Array.isArray(data.tracks)) {
-    renderMusicTable(data.tracks, currentConfig.currentTrack);
+    const cur = data.currentTrack || currentConfig?.currentTrack;
+    if (data.currentTrack && currentConfig) currentConfig.currentTrack = data.currentTrack;
+    renderMusicTable(data.tracks, cur);
+  }
+});
+
+socket.on('change_music', (data) => {
+  if (data && data.fileName) {
+    if (currentConfig) currentConfig.currentTrack = data.fileName;
+    loadMusicList();
   }
 });
 

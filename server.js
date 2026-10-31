@@ -570,7 +570,8 @@ app.post('/api/music/select', (req, res) => {
     url: `/assets/music/${fileName}`,
     name: trackInfo.name
   });
-  io.emit('music_list_updated', { tracks });
+  io.emit('music_list_updated', { tracks, currentTrack: fileName });
+  io.emit('config_updated', appConfig);
   res.json({ success: true, currentTrack: fileName, track: trackInfo });
 });
 

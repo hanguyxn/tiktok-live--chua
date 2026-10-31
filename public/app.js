@@ -400,23 +400,31 @@ function playMusicFile(src, name) {
     bgAudio = new Audio();
     bgAudio.loop = true;
     bgAudio.preload = 'auto';
+    bgAudio.crossOrigin = 'anonymous';
     bgAudio.addEventListener('error', (e) => {
       console.warn('[Audio] Lỗi phát file nhạc:', src, e);
     });
   }
 
+  // Nếu bài đang phát đúng là bài này và đang chạy, không làm ngắt quãng
+  if (bgAudio.src && bgAudio.src.endsWith(src) && !bgAudio.paused) {
+    if (nowPlayingEl) nowPlayingEl.textContent = '♪ ' + currentTrackName;
+    return;
+  }
+
   bgAudio.src = src;
   bgAudio.volume = muted ? 0 : 0.65;
 
-  if (audioStarted) {
-    const p = bgAudio.play();
-    if (p !== undefined) {
-      p.then(() => {
-        console.log('[Music] 🎵 Đang phát:', currentTrackName);
-      }).catch(err => {
-        console.warn('[Music] Trình duyệt cần nhấp chuột để bắt đầu âm thanh:', err.message);
-      });
-    }
+  // Luôn chủ động play ngay lập tức khi bấm đổi bài
+  const p = bgAudio.play();
+  if (p !== undefined) {
+    p.then(() => {
+      audioStarted = true;
+      if (audioGate) audioGate.classList.add('hidden');
+      console.log('[Music] 🎵 Đang phát ngay:', currentTrackName);
+    }).catch(err => {
+      console.warn('[Music] Trình duyệt cần tương tác để bắt đầu âm thanh:', err.message);
+    });
   }
 
   if (nowPlayingEl) nowPlayingEl.textContent = '♪ ' + currentTrackName;
@@ -1839,13 +1847,9 @@ socket.on('admin_speech', (data) => {
 // ─── Đổi Nhạc Đang Phát Từ Admin ─────────────────────────────────
 socket.on('change_music', (data) => {
   if (!data || !data.url) return;
-  console.log('[Music] 🎶 Đổi bài nhạc:', data.name, data.url);
+  console.log('[Music] 🎶 Đổi bài nhạc ngay lập tức:', data.name, data.url);
   showToast(`🎵 Đang phát: ${data.name}`);
-  if (audioStarted) {
-    playMusicByUrl(data.url, data.name);
-  } else {
-    TRACKS[0] = { src: data.url, name: data.name };
-  }
+  playMusicFile(data.url, data.name);
 });
 
 // ─── Nạp Phật Tử Hàng Loạt Vào Chánh Điện (Fetch Thủ Công) ────────

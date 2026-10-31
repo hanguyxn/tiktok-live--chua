@@ -49,6 +49,9 @@
         <button class="nav-item" data-tab="tab-templates">
           <span class="nav-icon">🖼️</span> Chọn Template Chánh Điện
         </button>
+        <button class="nav-item" data-tab="tab-fortunes">
+          <span class="nav-icon">🥠</span> Quẻ Xăm Phật Bản Mệnh
+        </button>
         <button class="nav-item" data-tab="tab-temple">
           <span class="nav-icon">⚙️</span> Cài Đặt Chung
         </button>
@@ -660,6 +663,103 @@
               <!-- Cards rendered dynamically -->
             </div>
             <div id="template-switch-alert" style="display: none; margin-top: 20px; padding: 12px 16px; border-radius: 8px; background: rgba(39, 174, 96, 0.2); border: 1px solid #27ae60; color: #2ecc71; font-weight: bold; text-align: center;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 11: QUẺ XĂM PHẬT BẢN MỆNH & ZOOM-IN -->
+      <section class="tab-pane" id="tab-fortunes">
+        <!-- Card Thử Nghiệm Bốc Quẻ Ngay -->
+        <div class="card" style="border: 1px solid #d9a441; background: linear-gradient(135deg, rgba(46, 20, 10, 0.4), rgba(20, 10, 5, 0.6));">
+          <div class="card-header space-between">
+            <div>
+              <h3>✨ Thử Nghiệm Bốc Quẻ Tức Thì (Test Zoom-In)</h3>
+              <p class="subtitle">Bấm nút để kích hoạt hiệu ứng camera phóng to vào 1 Phật tử và phát Thẻ Linh Xăm</p>
+            </div>
+            <button id="btn-test-fortune" class="btn btn-primary" style="background: linear-gradient(135deg, #d9a441, #b8860b); border: none; font-weight: bold; padding: 10px 22px; font-size: 14px;">
+              🥠 Test Bốc Quẻ Ngay
+            </button>
+          </div>
+          <div class="card-body">
+            <div id="fortune-test-alert" style="display: none; padding: 12px 16px; border-radius: 8px; background: rgba(39, 174, 96, 0.2); border: 1px solid #27ae60; color: #2ecc71; font-weight: bold; text-align: center;"></div>
+          </div>
+        </div>
+
+        <!-- Card Cấu Hình Bốc Quẻ -->
+        <div class="card" style="margin-top: 20px;">
+          <div class="card-header">
+            <h3>⚙️ Cài Đặt Quẻ Xăm Khi Tặng Quà</h3>
+            <p class="subtitle">Thiết lập tự động bốc quẻ linh ứng khi người xem gửi quà trên livestream</p>
+          </div>
+          <div class="card-body">
+            <form id="fortune-settings-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="checkbox-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: bold; font-size: 14px;">
+                    <input type="checkbox" id="fortune-enabled-input" checked style="width: 18px; height: 18px;">
+                    <span>Kích hoạt tính năng tặng quà nhận Quẻ Xăm</span>
+                  </label>
+                </div>
+                <div class="form-group">
+                  <label class="checkbox-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: bold; font-size: 14px;">
+                    <input type="checkbox" id="fortune-tts-input" checked style="width: 18px; height: 18px;">
+                    <span>Giọng đọc TTS giải quẻ & chúc phúc</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-row" style="margin-top: 15px;">
+                <div class="form-group">
+                  <label for="fortune-mincoins-input">Số Xu Tối Thiểu Nhận Quẻ (Diamonds)</label>
+                  <input type="number" id="fortune-mincoins-input" value="1" min="1" max="10000" class="form-control">
+                  <small class="hint">Quà tặng đạt từ số xu này trở lên sẽ kích hoạt bốc quẻ (mặc định 1 xu = mọi quà tặng)</small>
+                </div>
+                <div class="form-group">
+                  <label for="fortune-duration-input">Thời Gian Hiển Thị Quẻ (Giây)</label>
+                  <input type="number" id="fortune-duration-input" value="7.0" min="3" max="30" step="0.5" class="form-control">
+                  <small class="hint">Thời gian camera giữ phóng to và hiển thị quẻ trước khi trở lại bình thường</small>
+                </div>
+                <div class="form-group">
+                  <label for="fortune-zoom-input">Mức Độ Phóng To (Zoom Level)</label>
+                  <input type="number" id="fortune-zoom-input" value="1.75" min="1.1" max="2.4" step="0.05" class="form-control">
+                  <small class="hint">1.75x là góc nhìn cận cảnh cân đối và đẹp nhất</small>
+                </div>
+              </div>
+
+              <div style="margin-top: 20px; text-align: right;">
+                <button type="submit" class="btn btn-primary" style="padding: 10px 24px; font-weight: bold;">
+                  💾 Lưu Cài Đặt Quẻ Xăm
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Card Danh Sách Quẻ Xăm Cát Tường -->
+        <div class="card" style="margin-top: 20px;">
+          <div class="card-header space-between">
+            <div>
+              <h3>📜 Danh Sách Quẻ Xăm Cát Tường (<span id="fortune-count-badge">12</span> quẻ)</h3>
+              <p class="subtitle">Bộ quẻ xăm Phật Bản Mệnh truyền thống, thơ 4 câu thi pháp và lời dạy an lạc</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                  <tr style="border-bottom: 2px solid rgba(255,255,255,0.1); text-align: left;">
+                    <th style="padding: 10px;">Số Quẻ</th>
+                    <th style="padding: 10px;">Cấp Bậc</th>
+                    <th style="padding: 10px;">Tiêu Đề</th>
+                    <th style="padding: 10px;">Thơ Quẻ</th>
+                    <th style="padding: 10px;">Lời Phật Dạy</th>
+                  </tr>
+                </thead>
+                <tbody id="fortunes-table-body">
+                  <!-- Fortunes loaded dynamically -->
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </section>

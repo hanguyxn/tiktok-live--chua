@@ -62,6 +62,132 @@ if (!appConfig.bot) {
   };
 }
 
+// Danh sách 12 Quẻ Xăm Phật Bản Mệnh mặc định
+const DEFAULT_FORTUNES = [
+  {
+    id: 1,
+    number: 'Quẻ Số 01',
+    grade: 'Thượng Thượng (Đại Cát)',
+    title: 'Vạn Sự Hanh Thông · Hoa Khai Phú Quý',
+    poem: 'Xuân về hoa nở ngát ngàn phương / Vạn sự hanh thông rạng nẻo đường / Tích đức hành thiện trời che chở / Phúc lộc tràn trề ấm nước non.',
+    meaning: 'Công danh rạng rỡ, tài lộc dồi dào, gia đạo bình yên hòa thuận.',
+    advice: 'Năng làm việc thiện, mở rộng lòng từ bi, phước báu ngàn đời bền vững.'
+  },
+  {
+    id: 2,
+    number: 'Quẻ Số 02',
+    grade: 'Thượng Thượng (Đại Cát)',
+    title: 'Phúc Tinh Chiếu Mệnh · Quý Nhân Phù Trợ',
+    poem: 'Mây lành phủ khắp lối mười phương / Quý nhân đưa lối dẫn soi đường / Vượt qua giông bão ngời ánh sáng / Tâm nguyện tròn đầy vạn sự vương.',
+    meaning: 'Mọi khó khăn đều tan biến, đi đâu cũng có quý nhân giúp đỡ, mưu sự đại thành.',
+    advice: 'Thành kính tri ân, khiêm nhường đối nhân xử thế, phước lộc tự nhiên tăng trưởng.'
+  },
+  {
+    id: 3,
+    number: 'Quẻ Số 03',
+    grade: 'Thượng Cát',
+    title: 'Công Thành Danh Toại · Thuận Buồm Xuôi Gió',
+    poem: 'Cánh buồm lướt sóng đón gió đông / Cá vượt vũ môn thỏa ước mong / Chí lớn bền gan thời hội tụ / Danh thơm tiếng tốt rạng non sông.',
+    meaning: 'Sự nghiệp thăng tiến, thi cử hanh thông, công việc làm ăn buôn bán phát tài.',
+    advice: 'Giữ vững lòng chính trực, không tự cao tự đại, giữ đức độ để bền lâu.'
+  },
+  {
+    id: 4,
+    number: 'Quẻ Số 04',
+    grade: 'Thượng Cát',
+    title: 'Gia Đạo Hưng Long · Con Cháu Hiếu Hiền',
+    poem: 'Cội rễ vun bồi cành lá xanh / Trong nhà sum họp ấm tình thanh / Mẹ hiền con thảo gia phong rạng / Phúc ấm nghìn thu đắp mộng lành.',
+    meaning: 'Gia đình êm ấm, vợ chồng hòa thuận, con cái ngoan ngoãn hiếu thảo đạt thành tích tốt.',
+    advice: 'Lấy chữ Hiếu làm đầu, giữ gìn hòa khí gia đình là gốc rễ của vạn điều may.'
+  },
+  {
+    id: 5,
+    number: 'Quẻ Số 05',
+    grade: 'Thượng Cát',
+    title: 'Duyên Lành Tụ Hội · Tri Kỷ Trùng Phùng',
+    poem: 'Duyên lành hội tụ tựa mây hoa / Gặp gỡ tâm giao rộn tiếng ca / Đôi lứa vuông tròn se sợi thắm / Tình sâu nghĩa nặng ấm chan hòa.',
+    meaning: 'Tình duyên tốt đẹp, nhân duyên như ý, bạn bè đồng nghiệp hết lòng hỗ trợ.',
+    advice: 'Chân thành trong các mối quan hệ, bao dung tha thứ, duyên lành sẽ đơm hoa kết trái.'
+  },
+  {
+    id: 6,
+    number: 'Quẻ Số 06',
+    grade: 'Thượng Cát',
+    title: 'Tài Lộc Khởi Sắc · Kinh Doanh Hưng Vượng',
+    poem: 'Cây tốt đơm bông kết trái lành / Nguồn tiền tuôn chảy nước trong thanh / Mua may bán đắt bền chữ tín / Lợi lộc dồi dào thỏa tấc danh.',
+    meaning: 'Tài chính vững vàng, buôn may bán đắt, các khoản đầu tư sinh lời tốt đẹp.',
+    advice: 'Kinh doanh lấy chữ Tín làm đầu, không tham của phi nghĩa, lộc trời tự sinh.'
+  },
+  {
+    id: 7,
+    number: 'Quẻ Số 07',
+    grade: 'Trung Cát',
+    title: 'Vững Tâm Bền Chí · Vượt Khó Vươn Lên',
+    poem: 'Gian lao tôi luyện bậc tài hoa / Băng qua sương giá ngắm ngàn hoa / Vững chí bền gan đừng thoái bước / Trái ngọt ngày mai rạng cửa nhà.',
+    meaning: 'Hiện tại cần nỗ lực kiên trì, chông gai sắp qua đi, thành quả ngọt ngào đang tới.',
+    advice: 'Chớ nản lòng thoái chí, nhẫn nại vượt qua thử thách, hoa nở rộ sau mùa đông lạnh.'
+  },
+  {
+    id: 8,
+    number: 'Quẻ Số 08',
+    grade: 'Trung Cát',
+    title: 'Tâm An Trí Sáng · Định Tĩnh Sinh Huệ',
+    poem: 'Trăng trong soi bóng nước hồ thu / Xua tan tăm tối dứt sương mù / Tâm bình trí sáng nhìn thấu suốt / Phước báu bừng lên khắp chốn tu.',
+    meaning: 'Đầu óc minh mẫn, đưa ra những quyết định sáng suốt, giải quyết được khúc mắc bấy lâu.',
+    advice: 'Thường xuyên lắng tâm tĩnh lặng, tránh xa thị phi tranh cãi, bình an tự tại.'
+  },
+  {
+    id: 9,
+    number: 'Quẻ Số 09',
+    grade: 'Bình An',
+    title: 'Tai Qua Nạn Khỏi · Thân Thể Kiện Khang',
+    poem: 'Cỏ cây xanh tốt đón sương mai / Bệnh tật tiêu trừ dứt họa tai / Thân khỏe tâm an đời thanh thản / Phước thọ diên niên hưởng lộc dài.',
+    meaning: 'Sức khỏe dồi dào, bệnh tật tiêu trừ, tai ách hóa lành, sống lâu trăm tuổi.',
+    advice: 'Ăn uống lành mạnh, tập luyện điều độ, giữ tinh thần lạc quan yêu đời.'
+  },
+  {
+    id: 10,
+    number: 'Quẻ Số 10',
+    grade: 'Thượng Thượng (Đại Cát)',
+    title: 'Phước Huệ Song Tu · Bồ Đề Tâm Nguyện',
+    poem: 'Phật quang phổ chiếu rạng muôn nơi / Gieo hạt từ bi thắm nụ cười / Trí tuệ bừng soi tan tăm tối / Bình yên viên mãn trọn một đời.',
+    meaning: 'Được chư Phật và Bồ Tát gia hộ, thân tâm thanh tịnh, phúc huệ vẹn toàn.',
+    advice: 'Chăm chỉ niệm Phật, giữ gìn 5 giới, lan tỏa yêu thương đến muôn người.'
+  },
+  {
+    id: 11,
+    number: 'Quẻ Số 11',
+    grade: 'Thượng Cát',
+    title: 'Thuận Theo Tự Nhiên · Đắc Thời Đắc Vận',
+    poem: 'Đúng thời sen nở ngát hương bay / Thuận gió căng buồm thẳng cánh bay / Trời đất mở lòng ban vận tốt / Nắm bắt cơ duyên rạng tháng ngày.',
+    meaning: 'Thời cơ chín muồi đã đến, nên mạnh dạn triển khai kế hoạch ấp ủ bấy lâu.',
+    advice: 'Nắm bắt cơ hội nhưng hành xử thận trọng, thuận theo lẽ trời đất, kết quả mỹ mãn.'
+  },
+  {
+    id: 12,
+    number: 'Quẻ Số 12',
+    grade: 'Bình An',
+    title: 'Hóa Giải Phiền Não · Thảnh Thơi An Lạc',
+    poem: 'Gió thoảng mây bay dứt bận lòng / Trầm luân buông xả dạ thong dong / Một chén trà thơm lòng tự tại / Bụi trần rũ sạch ngát hương trong.',
+    meaning: 'Giải tỏa mọi ưu tư sầu muộn, buông bỏ chấp niệm, tìm lại sự nhẹ nhàng thanh thản.',
+    advice: 'Tập buông xả, không cố chấp chuyện cũ, trân trọng giây phút hiện tại.'
+  }
+];
+
+if (!appConfig.fortune) {
+  appConfig.fortune = {
+    enabled: true,
+    minCoins: 1,
+    durationSec: 7.0,
+    zoomLevel: 1.75,
+    ttsEnabled: true
+  };
+}
+if (!Array.isArray(appConfig.fortunes) || appConfig.fortunes.length === 0) {
+  appConfig.fortunes = DEFAULT_FORTUNES;
+}
+saveConfig(appConfig);
+
 // Thống kê phòng live hiện tại
 let liveStats = {
   viewers: 0,
@@ -509,6 +635,73 @@ app.post('/api/admin/broadcast-speech', (req, res) => {
   });
   
   res.json({ success: true, message: `Đã phát lời thoại của ${speaker} ra Chánh Điện!` });
+});
+
+// ========================================================
+// QUẺ XĂM PHẬT BẢN MỆNH (TẶNG QUÀ NHẬN QUẺ & ZOOM-IN)
+// ========================================================
+app.get('/api/fortune/config', (req, res) => {
+  res.json({
+    success: true,
+    fortune: appConfig.fortune || {
+      enabled: true,
+      minCoins: 1,
+      durationSec: 7.0,
+      zoomLevel: 1.75,
+      ttsEnabled: true
+    },
+    fortunes: appConfig.fortunes || []
+  });
+});
+
+app.post('/api/fortune/config', (req, res) => {
+  try {
+    const { enabled, minCoins, durationSec, zoomLevel, ttsEnabled } = req.body;
+    if (!appConfig.fortune) appConfig.fortune = {};
+    if (typeof enabled === 'boolean') appConfig.fortune.enabled = enabled;
+    if (minCoins !== undefined) appConfig.fortune.minCoins = Math.max(1, parseInt(minCoins, 10) || 1);
+    if (durationSec !== undefined) appConfig.fortune.durationSec = Math.max(3, parseFloat(durationSec) || 7.0);
+    if (zoomLevel !== undefined) appConfig.fortune.zoomLevel = Math.max(1.1, Math.min(2.5, parseFloat(zoomLevel) || 1.75));
+    if (typeof ttsEnabled === 'boolean') appConfig.fortune.ttsEnabled = ttsEnabled;
+
+    saveConfig(appConfig);
+    io.emit('config_updated', appConfig);
+
+    console.log('[Quẻ Xăm] ⚙️ Cập nhật cấu hình bốc quẻ:', appConfig.fortune);
+    res.json({ success: true, message: 'Đã lưu cấu hình Quẻ Xăm thành công!', fortune: appConfig.fortune });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/fortune/test', (req, res) => {
+  try {
+    const fortunes = appConfig.fortunes || [];
+    if (fortunes.length === 0) {
+      return res.status(400).json({ success: false, error: 'Chưa có danh sách quẻ xăm trong cấu hình' });
+    }
+    const randFortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+    
+    // Chọn 1 phật tử đang ngồi hoặc tạo thí chủ mẫu
+    const devotees = liveStats.activeDevotees || [];
+    let devotee = devotees.length > 0
+      ? devotees[Math.floor(Math.random() * devotees.length)]
+      : { id: 'test_devotee_' + Date.now(), name: 'Phật Tử Thiện Tâm', nickname: 'Phật Tử Thiện Tâm' };
+
+    const payload = {
+      user: devotee,
+      gift: { giftName: 'Hoa Sen Vàng', diamondCount: 10, actionType: 'lotus' },
+      fortune: randFortune,
+      durationSec: appConfig.fortune?.durationSec || 7.0,
+      timestamp: Date.now()
+    };
+
+    io.emit('fortune_drawn', payload);
+    console.log(`[Quẻ Xăm] 🧪 Admin test bốc quẻ cho ${devotee.name}: ${randFortune.number} - ${randFortune.grade}`);
+    res.json({ success: true, message: `Đã phát lệnh bốc quẻ thử nghiệm cho "${devotee.name}"!`, payload });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 // ========================================================
@@ -1086,7 +1279,16 @@ function processGiftEvent(user, rawGiftName, repeatCount, diamonds) {
   ];
   const prayer = matchedGift.customPrayer || prayersList[Math.floor(Math.random() * prayersList.length)];
 
-  console.log(`[Công Đức] ${user.nickname} (${user.name}) tặng ${repeatCount}x ${matchedGift.giftName} -> +${pointsEarned} công đức! Lời cầu nguyện: "${prayer}"`);
+  // Bốc quẻ xăm linh ứng khi tặng quà
+  let drawnFortune = null;
+  if (appConfig.fortune?.enabled !== false && Array.isArray(appConfig.fortunes) && appConfig.fortunes.length > 0) {
+    const minCoins = appConfig.fortune?.minCoins || 1;
+    if (diamonds >= minCoins || pointsEarned >= minCoins) {
+      drawnFortune = appConfig.fortunes[Math.floor(Math.random() * appConfig.fortunes.length)];
+    }
+  }
+
+  console.log(`[Công Đức] ${user.nickname} (${user.name}) tặng ${repeatCount}x ${matchedGift.giftName} -> +${pointsEarned} công đức! Lời cầu nguyện: "${prayer}"${drawnFortune ? ' | 🥠 Quẻ: ' + drawnFortune.number + ' - ' + drawnFortune.grade : ''}`);
 
   io.emit('gift_triggered', {
     user,
@@ -1095,6 +1297,8 @@ function processGiftEvent(user, rawGiftName, repeatCount, diamonds) {
     points: pointsEarned,
     totalPoints: liveStats.totalPoints,
     prayer,
+    fortune: drawnFortune,
+    durationSec: appConfig.fortune?.durationSec || 7.0,
     leaderboard: appConfig.leaderboard
   });
 }

@@ -772,6 +772,7 @@ socket.on('init_state', (data) => {
   }
   loadMusicList();
   loadTemplatesList();
+  loadFortuneSettings();
 
   if (currentConfig.temple) {
     if (inputTempleName) inputTempleName.value = currentConfig.temple.name || 'Chùa Online';
@@ -1348,3 +1349,109 @@ socket.on('change_background', (data) => {
     loadTemplatesList();
   }
 });
+
+// ========================================================
+// QUẢN LÝ QUẺ XĂM PHẬT BẢN MỆNH & ZOOM-IN
+// ========================================================
+async function loadFortuneSettings() {
+  try {
+    const res = await fetch('/api/fortune/config');
+    const data = await res.json();
+    if (!data.success) return;
+
+    const fCfg = data.fortune || {};
+    const fortunes = data.fortunes || [];
+
+    const chkEnabled = document.getElementById('fortune-enabled-input');
+    const chkTts = document.getElementById('fortune-tts-input');
+    const inMinCoins = document.getElementById('fortune-mincoins-input');
+    const inDuration = document.getElementById('fortune-duration-input');
+    const inZoom = document.getElementById('fortune-zoom-input');
+    const countBadge = document.getElementById('fortune-count-badge');
+    const tableBody = document.getElementById('fortunes-table-body');
+
+    if (chkEnabled) chkEnabled.checked = fCfg.enabled !== false;
+    if (chkTts) chkTts.checked = fCfg.ttsEnabled !== false;
+    if (inMinCoins) inMinCoins.value = fCfg.minCoins || 1;
+    if (inDuration) inDuration.value = fCfg.durationSec || 7.0;
+    if (inZoom) inZoom.value = fCfg.zoomLevel || 1.75;
+    if (countBadge) countBadge.textContent = fortunes.length;
+
+    if (tableBody) {
+      tableBody.innerHTML = fortunes.map(f => `
+        <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+          <td style="padding: 10px; font-weight: bold; color: #ffd700;">${f.number || ''}</td>
+          <td style="padding: 10px;"><span style="background: rgba(138,42,30,0.8); color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 11.5px; font-weight: bold;">${f.grade || ''}</span></td>
+          <td style="padding: 10px; font-weight: 600; color: #f1e3c8;">${f.title || ''}</td>
+          <td style="padding: 10px; font-style: italic; color: #b59a76; font-size: 12.5px;">${(f.poem || '').replace(/\s*\/\s*/g, ' | ')}</td>
+          <td style="padding: 10px; color: #e8dcc6; font-size: 12px;">${f.advice || f.meaning || ''}</td>
+        </tr>
+      `).join('');
+    }
+  } catch (err) {
+    console.warn('[Quẻ Xăm] Lỗi tải cấu hình quẻ xăm:', err.message);
+  }
+}
+
+// Lưu cấu hình Quẻ Xăm
+const fortuneSettingsForm = document.getElementById('fortune-settings-form');
+if (fortuneSettingsForm) {
+  fortuneSettingsForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const enabled = document.getElementById('fortune-enabled-input')?.checked ?? true;
+    const ttsEnabled = document.getElementById('fortune-tts-input')?.checked ?? true;
+    const minCoins = parseInt(document.getElementById('fortune-mincoins-input')?.value, 10) || 1;
+    const durationSec = parseFloat(document.getElementById('fortune-duration-input')?.value) || 7.0;
+    const zoomLevel = parseFloat(document.getElementById('fortune-zoom-input')?.value) || 1.75;
+
+    try {
+      const res = await fetch('/api/fortune/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled, ttsEnabled, minCoins, durationSec, zoomLevel })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('✅ Đã lưu cấu hình Quẻ Xăm thành công!');
+      } else {
+        alert('Lỗi lưu cài đặt: ' + (data.error || 'Lỗi'));
+      }
+    } catch (err) {
+      alert('Lỗi kết nối: ' + err.message);
+    }
+  });
+}
+
+// Test bốc quẻ ngay tức thì
+const btnTestFortune = document.getElementById('btn-test-fortune');
+const fortuneTestAlert = document.getElementById('fortune-test-alert');
+if (btnTestFortune) {
+  btnTestFortune.addEventListener('click', async () => {
+    btnTestFortune.disabled = true;
+    btnTestFortune.textContent = '⏳ Đang phát quẻ...';
+
+    try {
+      const res = await fetch('/api/fortune/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (fortuneTestAlert) {
+          fortuneTestAlert.style.display = 'block';
+          fortuneTestAlert.textContent = `🥠 Đã phát bốc quẻ thành công cho "${data.payload?.user?.name}"! Chánh Điện đang Zoom-in cận cảnh!`;
+          setTimeout(() => { if (fortuneTestAlert) fortuneTestAlert.style.display = 'none'; }, 6000);
+        }
+      } else {
+        alert('Lỗi test quẻ: ' + (data.error || 'Lỗi'));
+      }
+    } catch (err) {
+      alert('Lỗi kết nối: ' + err.message);
+    } finally {
+      setTimeout(() => {
+        btnTestFortune.disabled = false;
+        btnTestFortune.textContent = '🥠 Test Bốc Quẻ Ngay';
+      }, 1500);
+    }
+  });
+}

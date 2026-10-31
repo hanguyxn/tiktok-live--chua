@@ -441,3 +441,222 @@ html, body {
 .primary-gate-btn:hover {
   transform: scale(1.04);
 }
+
+/* ===================================================================
+ *  Thẻ Quẻ Xăm Phật Bản Mệnh (Linh Xăm Cát Tường)
+ * =================================================================== */
+.fortune-modal {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 95;
+  padding: 16px;
+}
+
+.fortune-modal[hidden] {
+  display: none !important;
+}
+
+.fortune-card {
+  position: relative;
+  width: 90%;
+  max-width: 440px;
+  background: linear-gradient(175deg, rgba(46, 20, 10, 0.96) 0%, rgba(20, 9, 4, 0.98) 60%, rgba(35, 14, 7, 0.96) 100%);
+  border: 2px solid var(--gold);
+  border-radius: 18px;
+  padding: 22px 20px 20px 20px;
+  box-shadow: 
+    0 0 0 1px rgba(255, 215, 0, 0.5),
+    0 18px 50px rgba(0, 0, 0, 0.9),
+    0 0 60px rgba(217, 164, 65, 0.4);
+  color: var(--fg);
+  text-align: center;
+  animation: fortunePopIn 0.55s cubic-bezier(0.18, 0.89, 0.32, 1.25) forwards;
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+.fortune-card.fade-out {
+  animation: fortunePopOut 0.5s ease-in forwards;
+}
+
+@keyframes fortunePopIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-35px) scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fortunePopOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(25px) scale(0.9);
+  }
+}
+
+.fortune-halo {
+  position: absolute;
+  top: -45px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  height: 130px;
+  background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.45) 0%, rgba(255, 160, 40, 0) 70%);
+  pointer-events: none;
+  filter: blur(14px);
+}
+
+.fortune-ribbon-top {
+  display: inline-block;
+  background: linear-gradient(90deg, transparent, rgba(138, 42, 30, 0.95), transparent);
+  color: var(--gold-bright);
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  padding: 4px 24px;
+  margin-bottom: 10px;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+}
+
+.fortune-user-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(217, 164, 65, 0.45);
+  border-radius: 999px;
+  padding: 4px 14px;
+  margin: 0 auto 12px auto;
+  width: fit-content;
+}
+
+.fortune-user-badge .user-lotus {
+  font-size: 14px;
+}
+
+.fortune-user-badge .user-title {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.fortune-user-badge .user-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff3dc;
+}
+
+.fortune-grade-box {
+  background: linear-gradient(135deg, rgba(90, 24, 12, 0.75), rgba(45, 15, 6, 0.85));
+  border: 1.5px solid var(--gold-bright);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  box-shadow: inset 0 0 18px rgba(255, 215, 0, 0.18);
+}
+
+.fortune-num {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.fortune-grade {
+  font-family: var(--display);
+  font-size: 21px;
+  font-weight: 700;
+  color: #fff1b8;
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.85);
+  margin: 3px 0;
+}
+
+.fortune-title {
+  font-size: 13.5px;
+  color: #fce8cd;
+  font-weight: 600;
+}
+
+.fortune-poem-box {
+  background: rgba(12, 6, 3, 0.7);
+  border: 1px dashed rgba(217, 164, 65, 0.6);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.poem-heading {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 1.2px;
+  margin-bottom: 6px;
+}
+
+.fortune-poem {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #fffaf0;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.fortune-meaning-box {
+  text-align: left;
+  font-size: 12.5px;
+  line-height: 1.55;
+  background: rgba(26, 12, 6, 0.6);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.meaning-item, .advice-item {
+  display: flex;
+  gap: 6px;
+}
+
+.meaning-label, .advice-label {
+  font-weight: 700;
+  color: var(--gold-bright);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.meaning-text, .advice-text {
+  color: #ebdcc5;
+}
+
+.fortune-stamp {
+  position: absolute;
+  bottom: 12px;
+  right: 14px;
+  border: 2px solid #b83020;
+  color: #e03b28;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 11px;
+  font-weight: 800;
+  font-family: var(--display);
+  letter-spacing: 1px;
+  transform: rotate(-12deg);
+  opacity: 0.88;
+  pointer-events: none;
+  box-shadow: 0 0 8px rgba(184, 48, 32, 0.45);
+}

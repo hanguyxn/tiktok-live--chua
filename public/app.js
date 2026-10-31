@@ -978,6 +978,133 @@ function drawSpeechBubble(text, x, y, s, timer = 5.5, total = 5.5, t = 0) {
   ctx.restore();
 }
 
+// ─── 2.5D Camera & Quẻ Xăm Phật Bản Mệnh System ───────────────────
+const camera = {
+  x: SW / 2,
+  y: 960,
+  zoom: 1.0,
+  targetX: SW / 2,
+  targetY: 960,
+  targetZoom: 1.0,
+  focusVisitor: null,
+  active: false,
+  timer: 0,
+  duration: 7.0
+};
+
+const fortuneQueue = [];
+
+function queueFortune(data) {
+  if (!data || !data.fortune) return;
+  fortuneQueue.push(data);
+  if (!camera.active) {
+    processNextFortune();
+  }
+}
+
+function processNextFortune() {
+  if (camera.active || fortuneQueue.length === 0) return;
+  const item = fortuneQueue.shift();
+  if (!item || !item.fortune) return;
+
+  let v = findVisitor(item.user);
+  if (!v) {
+    v = addVisitor(item.user, null, true, item.user?.id, false);
+  }
+  if (!v) return;
+
+  // Nếu đang bước đi thì an tọa ngay trên bồ đoàn
+  if (v.seat && v.state !== 'sit') {
+    v.x = v.seat.x;
+    v.y = v.seat.y;
+    v.state = 'sit';
+  }
+  v.stayTimer = Math.max(v.stayTimer, 240);
+
+  focusDevoteeForFortune(v, item.fortune, item.gift, item.durationSec || 7.0);
+}
+
+function focusDevoteeForFortune(v, fortune, giftInfo, duration = 7.0) {
+  if (!v || !fortune) return;
+
+  camera.focusVisitor = v;
+  camera.active = true;
+  camera.duration = duration;
+  camera.timer = duration;
+
+  const zoomLevel = (config.fortune && config.fortune.zoomLevel) ? config.fortune.zoomLevel : 1.75;
+  camera.targetZoom = zoomLevel;
+
+  // Tính toán vị trí tâm Camera sao cho vừa vặn Phật tử ở nửa dưới và không bị lệch khỏi phông nền
+  const halfW = (SW / 2) / zoomLevel;
+  const halfH = (SH / 2) / zoomLevel;
+  const desiredX = v.x;
+  const desiredY = v.y - 110;
+
+  camera.targetX = Math.max(halfW, Math.min(SW - halfW, desiredX));
+  camera.targetY = Math.max(halfH, Math.min(SH - halfH, desiredY));
+
+  // Hiệu ứng hào quang rực rỡ và Phật tử cúi đầu cảm tạ
+  v.glow = 8.0;
+  v.bow = 2.5;
+  v.speech = "🙏 Nhận Quẻ: " + (fortune.grade || fortune.number);
+  v.speechTimer = duration;
+
+  // Rung chuông tịnh tâm và phát hào quang
+  bell(true);
+  haloPulse = 1.2;
+
+  // Hiển thị Thẻ Quẻ Xăm lên màn hình
+  showFortuneCard(v, fortune, duration);
+
+  // Đọc lời chúc phúc giải quẻ qua TTS
+  if (config.fortune?.ttsEnabled !== false) {
+    const poetClean = (fortune.poem || '').replace(/\s*\/\s*/g, '. ');
+    const ttsText = `Chúc mừng thí chủ ${v.name} đã bốc được ${fortune.number}, ${fortune.grade}. ${fortune.title}. ${poetClean}. ${fortune.meaning}. Nam mô A Di Đà Phật!`;
+    speakBlessing(ttsText);
+  }
+}
+
+function showFortuneCard(v, fortune, duration = 7.0) {
+  const modal = document.getElementById('fortuneModal');
+  const card = modal?.querySelector('.fortune-card');
+  if (!modal || !card || !fortune) return;
+
+  const uName = document.getElementById('fortuneUserName');
+  const fNum = document.getElementById('fortuneNumber');
+  const fGrade = document.getElementById('fortuneGrade');
+  const fTitle = document.getElementById('fortuneTitle');
+  const fPoem = document.getElementById('fortunePoem');
+  const fMeaning = document.getElementById('fortuneMeaning');
+  const fAdvice = document.getElementById('fortuneAdvice');
+
+  if (uName) uName.textContent = v.name || v.nickname || 'Phật Tử';
+  if (fNum) fNum.textContent = fortune.number || 'Linh Xăm';
+  if (fGrade) fGrade.textContent = fortune.grade || 'CÁT TƯỜNG NHƯ Ý';
+  if (fTitle) fTitle.textContent = fortune.title || '';
+  if (fPoem) {
+    const lines = (fortune.poem || '').split(/\s*\/\s*/);
+    fPoem.innerHTML = lines.join('<br>');
+  }
+  if (fMeaning) fMeaning.textContent = fortune.meaning || '';
+  if (fAdvice) fAdvice.textContent = fortune.advice || '';
+
+  card.classList.remove('fade-out');
+  modal.removeAttribute('hidden');
+
+  clearTimeout(showFortuneCard._fadeTimer);
+  showFortuneCard._fadeTimer = setTimeout(() => {
+    card.classList.add('fade-out');
+  }, Math.max(1200, (duration - 0.55) * 1000));
+}
+
+function hideFortuneCard() {
+  const modal = document.getElementById('fortuneModal');
+  const card = modal?.querySelector('.fortune-card');
+  if (modal) modal.setAttribute('hidden', '');
+  if (card) card.classList.remove('fade-out');
+}
+
 // ─── Main Render Loop ──────────────────────────────────────────────
 let lastTime = performance.now();
 
@@ -990,6 +1117,31 @@ function render(now) {
   const t = now / 1000;
 
   ctx.clearRect(0, 0, SW, SH);
+
+  // Camera cập nhật vị trí và độ phóng đại mượt mà
+  const camSpeed = camera.active ? 3.4 : 2.6;
+  camera.zoom += (camera.targetZoom - camera.zoom) * Math.min(1, dt * camSpeed);
+  camera.x += (camera.targetX - camera.x) * Math.min(1, dt * camSpeed);
+  camera.y += (camera.targetY - camera.y) * Math.min(1, dt * camSpeed);
+
+  if (camera.active) {
+    camera.timer -= dt;
+    if (camera.timer <= 0) {
+      camera.active = false;
+      camera.targetZoom = 1.0;
+      camera.targetX = SW / 2;
+      camera.targetY = SH / 2;
+      camera.focusVisitor = null;
+      hideFortuneCard();
+      setTimeout(processNextFortune, 650);
+    }
+  }
+
+  // Khung nhìn Camera 2.5D Chánh Điện
+  ctx.save();
+  ctx.translate(SW / 2, SH / 2);
+  ctx.scale(camera.zoom, camera.zoom);
+  ctx.translate(-camera.x, -camera.y);
 
   // 1. Phông nền Chánh Điện Phật Vàng (hall.jpg)
   if (A.hall && A.hall.naturalWidth) {
@@ -1268,6 +1420,9 @@ function render(now) {
     ctx.restore();
   }
 
+  // Kết thúc khung nhìn Camera 2.5D
+  ctx.restore();
+
   // 8. Tự động thêm Phật tử ảo định kỳ (chỉ chạy khi BẬT tính năng Bot)
   if (config.bot && config.bot.enabled) {
     botSpawnTimer += dt;
@@ -1509,6 +1664,23 @@ socket.on('gift_triggered', (data) => {
 
   const prayerText = data.prayer || SUTRA_CHIC[Math.floor(Math.random() * SUTRA_CHIC.length)];
   triggerDonation(v, points, fxKind, prayerText, data.prayer);
+
+  // Nếu tặng quà nhận được Quẻ Xăm -> Xếp hàng Zoom-in và phát quẻ
+  if (data.fortune) {
+    queueFortune({
+      user,
+      gift,
+      fortune: data.fortune,
+      durationSec: data.durationSec || 7.0
+    });
+  }
+});
+
+// ─── Sự Kiện Bốc Quẻ Xăm Phật Bản Mệnh (Từ Server / Admin Test) ────
+socket.on('fortune_drawn', (data) => {
+  if (!data || !data.fortune) return;
+  console.log('[Quẻ Xăm] 🥠 Nhận sự kiện bốc quẻ:', data.fortune.number, data.user?.name);
+  queueFortune(data);
 });
 
 // ─── Lời Thoại Thầy Trụ Trì Từ Admin ──────────────────────────────

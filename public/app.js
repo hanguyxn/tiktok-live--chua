@@ -1282,6 +1282,12 @@ socket.on('init_state', (data) => {
     config = data.config;
     if (config.temple?.name && templeNameEl) templeNameEl.textContent = config.temple.name;
     if (config.temple?.subTitle && monkStatusEl) monkStatusEl.textContent = '· ' + config.temple.subTitle;
+    if (config.currentBackground) {
+      const bgImg = new Image();
+      bgImg.crossOrigin = 'anonymous';
+      bgImg.src = config.currentBackground;
+      bgImg.onload = () => { A.hall = bgImg; };
+    }
   }
   if (data.username) {
     currentUsername = data.username;
@@ -1326,6 +1332,12 @@ socket.on('config_updated', (newConfig) => {
     config = newConfig;
     if (config.temple?.name && templeNameEl) templeNameEl.textContent = config.temple.name;
     if (config.temple?.subTitle && monkStatusEl) monkStatusEl.textContent = '· ' + config.temple.subTitle;
+    if (config.currentBackground) {
+      const bgImg = new Image();
+      bgImg.crossOrigin = 'anonymous';
+      bgImg.src = config.currentBackground;
+      bgImg.onload = () => { A.hall = bgImg; };
+    }
   }
 });
 
@@ -1559,6 +1571,20 @@ socket.on('load_bulk_devotees', (data) => {
 
   showToast(`🙏 Đã cung thỉnh ${added} phật tử vào Chánh Điện trang nghiêm!`);
   bell(false);
+});
+
+// ─── Đổi Template Background Chánh Điện Tức Thì ───────────────────
+socket.on('change_background', (data) => {
+  if (!data || !data.backgroundUrl) return;
+  console.log('[Template] 🖼️ Nhận lệnh đổi nền Chánh Điện:', data.name, data.backgroundUrl);
+  const newImg = new Image();
+  newImg.crossOrigin = 'anonymous';
+  newImg.src = data.backgroundUrl + '?v=' + Date.now();
+  newImg.onload = () => {
+    A.hall = newImg;
+    showToast(`🎨 Chuyển cảnh: ${data.name}`);
+    bell(false);
+  };
 });
 
 socket.on('tiktok_share', (data) => {

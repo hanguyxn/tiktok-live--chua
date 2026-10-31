@@ -124,98 +124,7 @@
     "maxAvatars": 80,
     "avatarSpeechDuration": 5000
   },
-  "leaderboard": [
-    {
-      "id": "sim_736",
-      "name": "Phật_Tử_527",
-      "nickname": "Diệu Tâm",
-      "points": 1000
-    },
-    {
-      "id": "sim_959",
-      "name": "Phật_Tử_819",
-      "nickname": "Diệu Tâm",
-      "points": 1000
-    },
-    {
-      "id": "sim_281",
-      "name": "Phật_Tử_931",
-      "nickname": "Diệu Tâm",
-      "points": 1000
-    },
-    {
-      "id": "sim_587",
-      "name": "Phật_Tử_558",
-      "nickname": "Diệu Tâm",
-      "points": 505
-    },
-    {
-      "id": "sim_756",
-      "name": "Phật_Tử_414",
-      "nickname": "Diệu Tâm",
-      "points": 500
-    },
-    {
-      "id": "sim_99",
-      "name": "Phật_Tử_877",
-      "nickname": "Diệu Tâm",
-      "points": 500
-    },
-    {
-      "id": "sim_802",
-      "name": "Phật_Tử_315",
-      "nickname": "Diệu Tâm",
-      "points": 500
-    },
-    {
-      "id": "sim_706",
-      "name": "Phật_Tử_674",
-      "nickname": "Diệu Tâm",
-      "points": 500
-    },
-    {
-      "id": "sim_792",
-      "name": "Phật_Tử_144",
-      "nickname": "Diệu Tâm",
-      "points": 100
-    },
-    {
-      "id": "sim_372",
-      "name": "Phật_Tử_645",
-      "nickname": "Diệu Tâm",
-      "points": 100
-    },
-    {
-      "id": "sim_186",
-      "name": "Phật_Tử_921",
-      "nickname": "Diệu Tâm",
-      "points": 50
-    },
-    {
-      "id": "sim_30",
-      "name": "Phật_Tử_604",
-      "nickname": "Diệu Tâm",
-      "points": 50
-    },
-    {
-      "id": "sim_52",
-      "name": "Phật_Tử_730",
-      "nickname": "Diệu Tâm",
-      "points": 30
-    },
-    {
-      "id": "sim_112",
-      "name": "Phật_Tử_476",
-      "nickname": "Diệu Tâm",
-      "points": 10
-    },
-    {
-      "id": "sim_309",
-      "name": "Phật_Tử_658",
-      "nickname": "Diệu Tâm",
-      "points": 10
-    }
-  ],
+  "leaderboard": [],
   "tiktok": {
     "username": "locketgold_re",
     "status": "disconnected",
@@ -235,5 +144,10 @@
     "maxBots": 10,
     "autoLeave": true
   },
-  "currentTrack": "music1.mp3"
+  "currentTrack": "music1.mp3",
+  "prayers": [
+    "Cầu cho {name} gia đạo bình an"
+  ],
+  "currentTemplate": "classic",
+  "currentBackground": "/assets/template_classic.jpg"
 }

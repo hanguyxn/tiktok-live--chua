@@ -47,6 +47,10 @@ const tabMeta = {
     title: '📢 Admin Chủ Động Phát Thoại Ra Chánh Điện',
     desc: 'Phát giọng đọc AI (TTS) và hiển thị thẻ lời thoại của Thầy Trụ Trì ra luồng trực tiếp'
   },
+  'tab-templates': {
+    title: '🖼️ Chọn Template Background Chánh Điện',
+    desc: 'Chuyển đổi hình nền Chánh Điện trực tiếp theo thời gian thực (real-time) không cần tải lại trang'
+  },
   'tab-temple': {
     title: '⚙️ Cài Đặt Chung',
     desc: 'Tùy chỉnh tên chùa, lời tựa, chuông mõ và các bảng hiển thị'
@@ -767,6 +771,7 @@ socket.on('init_state', (data) => {
     renderPrayersTable(currentConfig.prayers);
   }
   loadMusicList();
+  loadTemplatesList();
 
   if (currentConfig.temple) {
     if (inputTempleName) inputTempleName.value = currentConfig.temple.name || 'Chùa Online';
@@ -1225,3 +1230,121 @@ if (btnPreviewSpeech && adminSpeechText) {
     }
   });
 }
+
+// ========================================================
+// 5. QUẢN LÝ & CHỌN TEMPLATE BACKGROUND CHÁNH ĐIỆN
+// ========================================================
+const templatesGrid = document.getElementById('templates-grid');
+const currentTemplateName = document.getElementById('current-template-name');
+const templateSwitchAlert = document.getElementById('template-switch-alert');
+
+async function loadTemplatesList() {
+  if (!templatesGrid) return;
+  try {
+    const res = await fetch('/api/temple/templates');
+    const data = await res.json();
+    if (data.success && Array.isArray(data.templates)) {
+      renderTemplatesGrid(data.templates, data.currentTemplate);
+    }
+  } catch (err) {
+    console.error('Lỗi tải danh sách template:', err);
+  }
+}
+
+function renderTemplatesGrid(templates, currentTemplateId) {
+  if (!templatesGrid) return;
+  templatesGrid.innerHTML = '';
+
+  const activeTpl = templates.find(t => t.id === currentTemplateId) || templates[0];
+  if (currentTemplateName && activeTpl) {
+    currentTemplateName.textContent = activeTpl.name;
+  }
+
+  templates.forEach(tpl => {
+    const isCurrent = tpl.id === currentTemplateId || tpl.isActive;
+    const card = document.createElement('div');
+    card.className = 'template-card';
+    card.style.cssText = `
+      background: rgba(26, 14, 9, 0.95);
+      border: 2px solid ${isCurrent ? '#27ae60' : 'rgba(217, 164, 65, 0.3)'};
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: ${isCurrent ? '0 0 20px rgba(39, 174, 96, 0.4)' : '0 4px 15px rgba(0,0,0,0.5)'};
+      transition: all 0.3s ease;
+    `;
+
+    card.innerHTML = `
+      <div style="position: relative; width: 100%; aspect-ratio: 9/16; background: #0c0705; overflow: hidden;">
+        <img src="${tpl.thumb || tpl.url}" alt="${tpl.name}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;" loading="lazy">
+        <span style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.78); color: #ffd700; font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255,215,0,0.4);">
+          ${tpl.tag || 'Chánh Điện'}
+        </span>
+        ${isCurrent ? `
+          <span style="position: absolute; top: 10px; right: 10px; background: #27ae60; color: #fff; font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.4);">
+            ✓ ĐANG LIVE
+          </span>
+        ` : ''}
+      </div>
+      <div style="padding: 14px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <h4 style="color: ${isCurrent ? '#2ecc71' : '#ffd700'}; margin: 0 0 6px 0; font-size: 15px;">${tpl.name}</h4>
+          <p style="font-size: 12px; color: #b59a76; margin: 0 0 12px 0; line-height: 1.4;">${tpl.desc}</p>
+        </div>
+        <div>
+          ${isCurrent ? `
+            <button class="btn btn-sm" disabled style="width: 100%; background: #27ae60; border-color: #219653; color: #fff; opacity: 0.9; cursor: default; font-weight: bold;">
+              🟢 Đang Hiển Thị Trên Live
+            </button>
+          ` : `
+            <button class="btn btn-sm btn-primary btn-select-template" data-id="${tpl.id}" data-name="${tpl.name}" style="width: 100%; font-weight: bold;">
+              🎨 Áp Dụng Template Này
+            </button>
+          `}
+        </div>
+      </div>
+    `;
+
+    templatesGrid.appendChild(card);
+  });
+
+  // Gắn sự kiện chọn template
+  document.querySelectorAll('.btn-select-template').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const templateId = btn.getAttribute('data-id');
+      const name = btn.getAttribute('data-name');
+      if (!templateId) return;
+
+      btn.disabled = true;
+      btn.textContent = '⏳ Đang chuyển cảnh...';
+
+      try {
+        const res = await fetch('/api/temple/template', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ templateId })
+        });
+        const data = await res.json();
+        if (data.success) {
+          if (templateSwitchAlert) {
+            templateSwitchAlert.style.display = 'block';
+            templateSwitchAlert.textContent = `✅ Đã chuyển sang: "${name}" tức thì trên Chánh Điện!`;
+            setTimeout(() => { if (templateSwitchAlert) templateSwitchAlert.style.display = 'none'; }, 4000);
+          }
+          loadTemplatesList();
+        } else {
+          alert('Lỗi đổi template: ' + (data.error || 'Lỗi'));
+        }
+      } catch (err) {
+        alert('Lỗi kết nối: ' + err.message);
+      }
+    });
+  });
+}
+
+socket.on('change_background', (data) => {
+  if (data && data.templateId) {
+    loadTemplatesList();
+  }
+});

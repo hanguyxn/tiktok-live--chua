@@ -411,6 +411,86 @@ app.delete('/api/music/:fileName', (req, res) => {
 });
 
 // ========================================================
+// QUẢN LÝ TEMPLATE BACKGROUND CHÁNH ĐIỆN
+// ========================================================
+const TEMPLE_TEMPLATES = [
+  {
+    id: 'classic',
+    name: 'Chánh Điện Tam Bảo Hoàng Gia (Mặc định)',
+    tag: 'Bản Chuẩn',
+    desc: 'Tượng Phật vàng tôn nghiêm, bàn thờ hoa đăng, sàn gỗ lim sáng bóng hoàn toàn không đệm.',
+    url: '/assets/template_classic.jpg',
+    thumb: '/assets/thumb_classic.jpg'
+  },
+  {
+    id: 'gold',
+    name: 'Đại Điện Phật Quang Phổ Chiếu',
+    tag: 'Dát Vàng 24K',
+    desc: 'Kim thân Phật Tổ Thích Ca tọa đài sen lớn, ánh hào quang rực rỡ, sàn gỗ thênh thang lộng lẫy.',
+    url: '/assets/template_gold.jpg',
+    thumb: '/assets/thumb_gold.jpg'
+  },
+  {
+    id: 'ancient',
+    name: 'Đại Điện Cổ Tự Hoàng Gia',
+    tag: 'Cổ Kính Trầm Mặc',
+    desc: 'Kiến trúc chùa cổ cột rồng thếp vàng, đèn lồng đỏ ấm áp, đại hồng chung cổ kính.',
+    url: '/assets/template_ancient.jpg',
+    thumb: '/assets/thumb_ancient.jpg'
+  },
+  {
+    id: 'quanam',
+    name: 'Chánh Điện Quán Thế Âm Bồ Tát',
+    tag: 'Thanh Tịnh Thoát Tục',
+    desc: 'Đức Quán Âm Đại Bi ngự tòa sen ngọc bích an lành, thiền đường tịnh thủy thanh tao.',
+    url: '/assets/template_quanam.jpg',
+    thumb: '/assets/thumb_quanam.jpg'
+  }
+];
+
+// Lấy danh sách template
+app.get('/api/temple/templates', (req, res) => {
+  const currentTemplate = appConfig.currentTemplate || 'classic';
+  const templates = TEMPLE_TEMPLATES.map(t => ({
+    ...t,
+    isActive: t.id === currentTemplate
+  }));
+  res.json({
+    success: true,
+    templates,
+    currentTemplate,
+    currentBackground: appConfig.currentBackground || '/assets/template_classic.jpg'
+  });
+});
+
+// Đổi template tức thì mà không cần reload
+app.post('/api/temple/template', (req, res) => {
+  const { templateId } = req.body;
+  if (!templateId) return res.status(400).json({ success: false, error: 'Thiếu templateId' });
+  const t = TEMPLE_TEMPLATES.find(tpl => tpl.id === templateId);
+  if (!t) return res.status(404).json({ success: false, error: 'Template không tồn tại' });
+
+  appConfig.currentTemplate = templateId;
+  appConfig.currentBackground = t.url;
+  saveConfig(appConfig);
+
+  console.log(`[Template] 🖼️ Chuyển hình nền Chánh Điện sang: "${t.name}" (${t.url})`);
+
+  io.emit('change_background', {
+    templateId,
+    backgroundUrl: t.url,
+    name: t.name
+  });
+
+  res.json({
+    success: true,
+    message: `Đã đổi hình nền Chánh Điện sang "${t.name}" tức thì!`,
+    currentTemplate: templateId,
+    template: t
+  });
+});
+
+// ========================================================
 // ADMIN CHỦ ĐỘNG GỬI LỜI THOẠI / THÔNG BÁO CHÁNH ĐIỆN
 // ========================================================
 app.post('/api/admin/broadcast-speech', (req, res) => {

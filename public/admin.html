@@ -40,6 +40,12 @@
         <button class="nav-item" data-tab="tab-leaderboard">
           <span class="nav-icon">🏆</span> Bảng Công Đức & Top 1
         </button>
+        <button class="nav-item" data-tab="tab-music">
+          <span class="nav-icon">🎵</span> Quản Lý Nhạc Chùa
+        </button>
+        <button class="nav-item" data-tab="tab-speech">
+          <span class="nav-icon">📢</span> Lời Thoại Thầy Trụ Trì
+        </button>
         <button class="nav-item" data-tab="tab-temple">
           <span class="nav-icon">⚙️</span> Cài Đặt Chung
         </button>
@@ -89,7 +95,9 @@
                 <button id="btn-check-room" class="btn btn-secondary">🔍 Kiểm Tra Phòng Live</button>
                 <button id="btn-connect-tiktok" class="btn btn-primary">🔗 Kết Nối</button>
                 <button id="btn-disconnect-tiktok" class="btn btn-danger" style="display: none;">❌ Ngắt Kết Nối</button>
+                <button id="btn-fetch-viewers" class="btn btn-warning" style="background: #d35400; border-color: #ba4a00; font-weight: bold;">🔄 Quét & Nạp Người Xem</button>
               </div>
+              <div id="fetch-viewers-alert" style="display: none; margin-top: 10px; padding: 10px 14px; border-radius: 8px; background: rgba(230, 126, 34, 0.18); border: 1px solid #e67e22; color: #ffd700; font-size: 13px;"></div>
               <small class="helper-text">💡 <strong>Mẹo:</strong> Bấm <em>"🔍 Kiểm Tra Phòng Live"</em> để xem trước tiêu đề, số người xem và trạng thái phòng trước khi kết nối.</small>
             </div>
 
@@ -308,6 +316,36 @@
             <div class="action-footer mt-4">
               <button id="btn-save-gifts" class="btn btn-success">💾 Lưu Cấu Hình Quà Tặng</button>
             </div>
+
+            <!-- DANH SÁCH CÂU CẦU AN KHI TẶNG QUÀ -->
+            <div class="card mt-4" style="background: rgba(217, 164, 65, 0.05); border: 1px solid rgba(217, 164, 65, 0.3);">
+              <div class="card-header space-between">
+                <div>
+                  <h3 style="color: #ffd700; font-size: 16px;">📜 Danh Sách Lời Chúc Nguyện & Cầu An Khi Tặng Quà</h3>
+                  <small class="helper-text">Mỗi khi phật tử tặng quà, hệ thống sẽ tự động chọn 1 câu cầu an để đọc (TTS) và hiển thị trang trọng trên màn hình Chánh Điện.</small>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="form-group">
+                  <div class="input-action-group">
+                    <input type="text" id="new-prayer-input" placeholder="Nhập câu cầu an mới (Ví dụ: Cầu cho gia đạo bình an, sở cầu như ý...)">
+                    <button id="btn-add-prayer" class="btn btn-primary">➕ Thêm Câu Cầu An</button>
+                  </div>
+                </div>
+                <div class="table-responsive mt-3">
+                  <table class="styled-table" id="prayers-table">
+                    <thead>
+                      <tr>
+                        <th style="width: 50px;">STT</th>
+                        <th>Nội Dung Câu Cầu An / Chúc Phúc</th>
+                        <th style="width: 100px; text-align: center;">Thao Tác</th>
+                      </tr>
+                    </thead>
+                    <tbody id="prayers-table-body"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -487,6 +525,116 @@
                   <button id="btn-quick-clear" class="btn btn-danger" style="flex: 1;">🧹 Dọn Sạch Chánh Điện</button>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- TAB 8: QUẢN LÝ NHẠC CHÙA & UPLOAD (MUSIC) -->
+      <section class="tab-pane" id="tab-music">
+        <div class="card">
+          <div class="card-header space-between">
+            <div>
+              <h3>🎵 Quản Lý Thư Viện Nhạc Thiền & Bài Thuyết Pháp</h3>
+              <small class="helper-text">Tải lên các file nhạc thiền (.mp3, .m4a, .wav) và chủ động chọn bài nhạc đang phát ra luồng Chánh Điện.</small>
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- Khung Upload -->
+            <div style="background: rgba(255, 215, 0, 0.05); border: 2px dashed rgba(217, 164, 65, 0.4); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 25px;">
+              <h4 style="color: #ffd700; margin-bottom: 8px;">📤 Tải Lên Bài Nhạc Mới</h4>
+              <p style="font-size: 13px; color: #b59a76; margin-bottom: 15px;">Hỗ trợ file .mp3, .m4a, .wav, .aac, .ogg (Tối đa 150MB)</p>
+              <div style="display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap;">
+                <input type="file" id="music-file-input" accept="audio/*" style="display: none;">
+                <button type="button" id="btn-browse-music" class="btn btn-secondary">📁 Chọn File Âm Thanh</button>
+                <span id="music-file-chosen" style="font-size: 13px; color: #f1e3c8; font-style: italic;">Chưa chọn file</span>
+                <button type="button" id="btn-upload-music" class="btn btn-primary" style="display: none;">⬆️ Tải Lên Ngay</button>
+              </div>
+              <div id="upload-music-progress" style="display: none; margin-top: 15px; font-size: 13px; color: #00ff88; font-weight: bold;"></div>
+            </div>
+
+            <!-- Bảng Danh Sách Nhạc -->
+            <div class="table-responsive">
+              <table class="styled-table" id="music-table">
+                <thead>
+                  <tr>
+                    <th>Tên Bài Nhạc / File</th>
+                    <th style="width: 110px;">Dung Lượng</th>
+                    <th style="width: 140px; text-align: center;">Trạng Thái</th>
+                    <th style="width: 220px; text-align: center;">Thao Tác</th>
+                  </tr>
+                </thead>
+                <tbody id="music-table-body">
+                  <tr><td colspan="4" style="text-align: center; padding: 20px; color: #999;">Đang tải danh sách bài nhạc...</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Trình Phát Thử Nghiệm Nội Bộ Trên Admin -->
+            <div id="admin-audio-player" style="display: none; margin-top: 20px; padding: 12px 18px; border-radius: 10px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(217, 164, 65, 0.3); align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span>🔊 Đang nghe thử: <strong id="admin-audio-name" style="color: #ffd700;">--</strong></span>
+              </div>
+              <audio id="admin-audio-element" controls style="height: 34px;"></audio>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 9: ADMIN GỬI LỜI THOẠI (SPEECH) -->
+      <section class="tab-pane" id="tab-speech">
+        <div class="card">
+          <div class="card-header">
+            <h3>📢 Admin Chủ Động Phát Thoại Ra Chánh Điện</h3>
+            <small class="helper-text">Nhập văn bản thông báo hoặc chọn các câu khai lễ, tri ân để hệ thống phát giọng đọc AI (TTS) và hiển thị thẻ lời thoại của Thầy Trụ Trì.</small>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label for="admin-speech-speaker">Người Phát Ngôn:</label>
+              <select id="admin-speech-speaker" style="width: 100%; max-width: 320px; padding: 8px 12px; border-radius: 6px; background: #1a0e09; color: #ffd700; border: 1px solid rgba(217, 164, 65, 0.4);">
+                <option value="Thầy Trụ Trì">📿 Thầy Trụ Trì</option>
+                <option value="Chánh Điện Online">🏛️ Chánh Điện Online</option>
+                <option value="Ban Nghi Lễ">🙏 Ban Nghi Lễ</option>
+              </select>
+            </div>
+
+            <div class="form-group mt-3">
+              <label for="admin-speech-text">Nội Dung Lời Thoại Cần Phát:</label>
+              <textarea id="admin-speech-text" rows="3" style="width: 100%; background: #140803; border: 1px solid #b8860b; color: #fff; border-radius: 8px; padding: 12px; font-size: 14px; font-family: inherit; line-height: 1.5;" placeholder="Nhập lời thoại cần phát ra luồng Chánh Điện..."></textarea>
+            </div>
+
+            <!-- Gợi Ý Các Câu Thoại Mẫu -->
+            <div class="form-group mt-3">
+              <label style="color: #b59a76; font-size: 13px;">💡 Nhấp vào câu mẫu thông dụng để điền nhanh:</label>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px;">
+                <button type="button" class="btn-sm btn-outline quick-speech-chip" data-text="Nam mô A Di Đà Phật. Kính chúc toàn thể quý phật tử và gia quyến thân tâm thường an lạc, bách bệnh tiêu trừ, vạn sự hanh thông.">
+                  🙏 Chúc An Lạc Toàn Thể
+                </button>
+                <button type="button" class="btn-sm btn-outline quick-speech-chip" data-text="Chào mừng quý thiện nam tín nữ đã quang lâm về chánh điện tham dự khóa lễ cầu an trực tuyến hôm nay.">
+                  🏛️ Chào Mừng Vào Chánh Điện
+                </button>
+                <button type="button" class="btn-sm btn-outline quick-speech-chip" data-text="Kính mời toàn thể đại chúng cùng chắp tay trang nghiêm, tịnh tâm hướng về Tam Bảo đồng thanh niệm Phật.">
+                  📿 Mời Niệm Phật Trang Nghiêm
+                </button>
+                <button type="button" class="btn-sm btn-outline quick-speech-chip" data-text="Tri ân công đức vô lượng của quý phật tử đã phát tâm bồ đề cúng dường gieo duyên cùng Tam Bảo.">
+                  🌸 Tri Ân Công Đức Cúng Dường
+                </button>
+                <button type="button" class="btn-sm btn-outline quick-speech-chip" data-text="Nguyện đem công đức vô lượng này hồi hướng khắp mười phương pháp giới chúng sinh đều trọn thành Phật đạo.">
+                  ✨ Hồi Hướng Công Đức
+                </button>
+                <button type="button" class="btn-sm btn-outline quick-speech-chip" data-text="Tiếng chuông chùa ngân vang xua tan phiền não, nguyện cầu hồng ân Tam Bảo gia hộ quý vị vạn sự cát tường như ý.">
+                  🔔 Chuông Chùa An Lạc
+                </button>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 20px; align-items: center; flex-wrap: wrap;">
+              <button id="btn-broadcast-speech" class="btn btn-primary" style="font-size: 15px; padding: 12px 24px; font-weight: bold; background: linear-gradient(135deg, #d4af37, #aa820a);">
+                📢 Phát Giọng Nói (TTS) Ra Chánh Điện
+              </button>
+              <button id="btn-preview-speech" class="btn btn-secondary">
+                🎧 Nghe Thử Giọng Đọc Trên Máy
+              </button>
+              <span id="speech-status-msg" style="font-size: 13px; font-weight: bold; color: #00ff88;"></span>
             </div>
           </div>
         </div>

@@ -5,6 +5,7 @@ import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import multer from 'multer';
 import { TikTokLiveConnection } from 'tiktok-live-connector';
 
 // Thiết lập whitelist host để ngăn lỗi Authenticated WS
@@ -259,6 +260,280 @@ app.post('/api/visitors/clear', (req, res) => {
 app.post('/api/visitors/leave', (req, res) => {
   io.emit('visitor_leave_requested', req.body || {});
   res.json({ success: true, message: 'Đã phát lệnh cho 1 Phật tử ra về' });
+});
+
+// ========================================================
+// QUẢN LÝ NHẠC CHÙA & TẢI FILE ÂM THANH
+// ========================================================
+const MUSIC_DIR = path.join(__dirname, 'public', 'assets', 'music');
+if (!fs.existsSync(MUSIC_DIR)) {
+  fs.mkdirSync(MUSIC_DIR, { recursive: true });
+}
+
+const musicStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, MUSIC_DIR);
+  },
+  filename: (req, file, cb) => {
+    let original = file.originalname;
+    try {
+      original = Buffer.from(file.originalname, 'latin1').toString('utf8');
+    } catch (e) {}
+    const ext = path.extname(original).toLowerCase();
+    const base = path.basename(original, ext).replace(/[^\w\s\-\.\u00C0-\u1EF9]/gi, '').trim().replace(/\s+/g, '_');
+    const safeName = `${base || 'nhac_chua'}_${Date.now()}${ext}`;
+    cb(null, safeName);
+  }
+});
+
+const uploadMusic = multer({
+  storage: musicStorage,
+  limits: { fileSize: 150 * 1024 * 1024 }, // 150MB
+  fileFilter: (req, file, cb) => {
+    const allowed = /\.(mp3|m4a|wav|aac|ogg|flac|wma)$/i;
+    if (allowed.test(file.originalname)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Chỉ chấp nhận file âm thanh (.mp3, .m4a, .wav, .aac, .ogg)'));
+    }
+  }
+});
+
+function getMusicTracksList() {
+  if (!fs.existsSync(MUSIC_DIR)) return [];
+  const files = fs.readdirSync(MUSIC_DIR);
+  const audioFiles = files.filter(f => /\.(mp3|m4a|wav|aac|ogg|flac)$/i.test(f));
+  
+  return audioFiles.map(file => {
+    const fullPath = path.join(MUSIC_DIR, file);
+    let size = 0;
+    let mtime = 0;
+    try {
+      const stat = fs.statSync(fullPath);
+      size = stat.size;
+      mtime = stat.mtimeMs;
+    } catch (e) {}
+
+    const ext = path.extname(file);
+    const base = path.basename(file, ext);
+    let friendlyName = base.replace(/_/g, ' ');
+    if (file === 'loi_phat_day.m4a') friendlyName = 'Lời Phật Dạy – Nửa Đời Còn Lại Hãy Sống Chậm & Bình Yên';
+    else if (file === 'music1.mp3') friendlyName = 'Nhạc Thiền Tịnh Tâm 1';
+    else if (file === 'music2.mp3') friendlyName = 'Nhạc Thiền Tịnh Tâm 2';
+
+    return {
+      fileName: file,
+      name: friendlyName,
+      size,
+      sizeFormatted: (size / (1024 * 1024)).toFixed(1) + ' MB',
+      url: `/assets/music/${file}`,
+      isPlaying: file === (appConfig.currentTrack || 'loi_phat_day.m4a'),
+      mtime
+    };
+  }).sort((a, b) => b.mtime - a.mtime);
+}
+
+// 1. Lấy danh sách nhạc
+app.get('/api/music/list', (req, res) => {
+  const tracks = getMusicTracksList();
+  res.json({
+    success: true,
+    tracks,
+    currentTrack: appConfig.currentTrack || (tracks[0]?.fileName || 'loi_phat_day.m4a')
+  });
+});
+
+// 2. Tải nhạc mới lên
+app.post('/api/music/upload', (req, res) => {
+  uploadMusic.single('audioFile')(req, res, (err) => {
+    if (err) {
+      return res.status(400).json({ success: false, error: err.message });
+    }
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: 'Chưa chọn file nhạc tải lên' });
+    }
+    console.log(`[Music] 🎵 Đã tải lên file nhạc mới: ${req.file.filename} (${(req.file.size / 1024 / 1024).toFixed(1)} MB)`);
+    const tracks = getMusicTracksList();
+    io.emit('music_list_updated', { tracks });
+    res.json({
+      success: true,
+      message: 'Tải lên nhạc thành công!',
+      file: req.file.filename,
+      tracks
+    });
+  });
+});
+
+// 3. Chọn bài nhạc đang phát
+app.post('/api/music/select', (req, res) => {
+  const { fileName } = req.body;
+  if (!fileName) return res.status(400).json({ success: false, error: 'Thiếu fileName' });
+  const fullPath = path.join(MUSIC_DIR, fileName);
+  if (!fs.existsSync(fullPath)) {
+    return res.status(404).json({ success: false, error: 'File nhạc không tồn tại' });
+  }
+  appConfig.currentTrack = fileName;
+  saveConfig(appConfig);
+  const tracks = getMusicTracksList();
+  const trackInfo = tracks.find(t => t.fileName === fileName) || { fileName, name: fileName, url: `/assets/music/${fileName}` };
+  console.log(`[Music] 🎶 Đổi bài nhạc đang phát sang: "${trackInfo.name}" (${fileName})`);
+  io.emit('change_music', {
+    fileName,
+    url: `/assets/music/${fileName}`,
+    name: trackInfo.name
+  });
+  io.emit('music_list_updated', { tracks });
+  res.json({ success: true, currentTrack: fileName, track: trackInfo });
+});
+
+// 4. Xóa bài nhạc
+app.delete('/api/music/:fileName', (req, res) => {
+  const fileName = req.params.fileName;
+  if (!fileName || fileName.includes('..') || fileName.includes('/') || fileName.includes('\\')) {
+    return res.status(400).json({ success: false, error: 'Tên file không hợp lệ' });
+  }
+  const fullPath = path.join(MUSIC_DIR, fileName);
+  if (fs.existsSync(fullPath)) {
+    try {
+      fs.unlinkSync(fullPath);
+      console.log(`[Music] 🗑 Đã xóa bài nhạc: ${fileName}`);
+      if (appConfig.currentTrack === fileName) {
+        appConfig.currentTrack = 'music1.mp3';
+        saveConfig(appConfig);
+      }
+    } catch (err) {
+      return res.status(500).json({ success: false, error: err.message });
+    }
+  }
+  const tracks = getMusicTracksList();
+  io.emit('music_list_updated', { tracks });
+  res.json({ success: true, tracks });
+});
+
+// ========================================================
+// ADMIN CHỦ ĐỘNG GỬI LỜI THOẠI / THÔNG BÁO CHÁNH ĐIỆN
+// ========================================================
+app.post('/api/admin/broadcast-speech', (req, res) => {
+  const { text, speakerName } = req.body;
+  if (!text || !text.trim()) {
+    return res.status(400).json({ success: false, error: 'Nội dung lời thoại không được để trống' });
+  }
+  const cleanText = text.trim();
+  const speaker = (speakerName || 'Thầy Trụ Trì').trim();
+  console.log(`[Admin Thoại] 📢 [${speaker}]: "${cleanText}"`);
+  
+  io.emit('admin_speech', {
+    text: cleanText,
+    speakerName: speaker,
+    timestamp: Date.now()
+  });
+  
+  res.json({ success: true, message: `Đã phát lời thoại của ${speaker} ra Chánh Điện!` });
+});
+
+// ========================================================
+// FETCH DANH SÁCH NGƯỜI TRONG LIVE THỦ CÔNG ĐỂ LOAD PHẬT TỬ
+// ========================================================
+app.post('/api/tiktok/fetch-viewers', async (req, res) => {
+  try {
+    let collectedUsers = [];
+    const seenIds = new Set();
+
+    // 1. Quét từ activeDevotees đã ghi nhận
+    if (Array.isArray(liveStats.activeDevotees)) {
+      liveStats.activeDevotees.forEach(u => {
+        const uid = u.id || u.uniqueId || u.name;
+        if (uid && !seenIds.has(uid)) {
+          seenIds.add(uid);
+          collectedUsers.push(u);
+        }
+      });
+    }
+
+    // 2. Quét từ kết nối TikTok trực tiếp
+    if (tiktokConnection && connectionStatus === 'connected') {
+      try {
+        const info = await tiktokConnection.fetchRoomInfo();
+        if (info) {
+          const ranks = info.top_viewers || info.ranks || info.users || [];
+          if (Array.isArray(ranks)) {
+            ranks.forEach(r => {
+              const u = extractTikTokUser(r);
+              const uid = u.id || u.uniqueId || u.name;
+              if (uid && !seenIds.has(uid)) {
+                seenIds.add(uid);
+                collectedUsers.push(u);
+              }
+            });
+          }
+        }
+      } catch (err) {
+        console.warn('[TikTok] Không thể gọi fetchRoomInfo khi quét thủ công:', err.message);
+      }
+    }
+
+    // 3. Quét từ Bảng Công Đức
+    if (Array.isArray(appConfig.leaderboard)) {
+      appConfig.leaderboard.forEach(item => {
+        const uid = item.id || item.name;
+        if (uid && !seenIds.has(uid)) {
+          seenIds.add(uid);
+          collectedUsers.push({
+            id: uid,
+            name: item.name,
+            nickname: item.nickname || item.name,
+            uniqueId: item.name
+          });
+        }
+      });
+    }
+
+    // 4. Bổ sung các thiện nam tín nữ để chánh điện đông vui trang nghiêm
+    const targetCount = Math.max(15, Math.min(collectedUsers.length > 0 ? collectedUsers.length + 8 : 22, 35));
+    const BUDDHIST_NAMES = [
+      'Diệu Tâm', 'Quảng Thiện', 'Phúc An', 'Tịnh Viên', 'Chân Như',
+      'Minh Đức', 'Huệ Tĩnh', 'Trí Hải', 'Tuệ Tâm', 'Liên Hoa',
+      'Tịnh Tâm', 'Vạn Hạnh', 'Thường Lạc', 'Khánh An', 'An Nhiên',
+      'Kim Cương', 'Thiện Duyên', 'Phước Lành', 'Tâm Bình', 'Diệu Âm',
+      'Hạnh Phúc', 'Bình Yên', 'Bảo Quang', 'Đại Bi', 'Tự Tại'
+    ];
+
+    while (collectedUsers.length < targetCount) {
+      const randIdx = Math.floor(Math.random() * BUDDHIST_NAMES.length);
+      const name = BUDDHIST_NAMES[randIdx] + '_' + (Math.floor(Math.random() * 899) + 100);
+      const uid = 'devotee_' + Math.random().toString(36).slice(2, 8);
+      if (!seenIds.has(uid)) {
+        seenIds.add(uid);
+        collectedUsers.push({
+          id: uid,
+          name,
+          nickname: name,
+          uniqueId: uid,
+          isManualFetched: true
+        });
+      }
+    }
+
+    liveStats.activeDevotees = collectedUsers.slice(0, 50);
+
+    console.log(`[TikTok] 🔄 Quét thủ công danh sách người xem: nạp ${collectedUsers.length} phật tử vào Chánh Điện!`);
+
+    io.emit('load_bulk_devotees', {
+      viewers: collectedUsers,
+      totalCount: collectedUsers.length,
+      timestamp: Date.now()
+    });
+
+    res.json({
+      success: true,
+      count: collectedUsers.length,
+      viewers: collectedUsers,
+      message: `Đã nạp thành công ${collectedUsers.length} phật tử vào Chánh Điện!`
+    });
+  } catch (err) {
+    console.error('[TikTok] Lỗi khi quét danh sách người xem:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 // Phân tích Cookie TikTok (hỗ trợ cả sessionid riêng lẻ lẫn chuỗi cookie đầy đủ)
@@ -719,7 +994,19 @@ function processGiftEvent(user, rawGiftName, repeatCount, diamonds) {
   updateLeaderboard(user, pointsEarned);
   trackActiveDevotee(user);
 
-  console.log(`[Công Đức] ${user.nickname} (${user.name}) tặng ${repeatCount}x ${matchedGift.giftName} -> +${pointsEarned} công đức!`);
+  const prayersList = (appConfig.prayers && appConfig.prayers.length > 0) ? appConfig.prayers : [
+    "Cầu cho thân tâm thường an lạc, tật bệnh tiêu trừ, vạn sự hanh thông.",
+    "Cầu cho gia đạo bình an, phúc lộc dồi dào, thuận buồm xuôi gió.",
+    "Cầu cho phụ mẫu tăng long phúc thọ, gia đình êm ấm, sở cầu như ý.",
+    "Cầu cho công danh sự nghiệp hanh thông, tài lộc phát đạt, tai qua nạn khỏi.",
+    "Cầu cho con cháu hiếu thuận thành đạt, phúc đức đời đời hưng thịnh.",
+    "Cầu Đức Phật từ bi gia hộ độ trì cho gia quyến vạn sự cát tường như ý.",
+    "Cầu cho tâm bồ đề kiên cố, trí tuệ sáng suốt, phước duyên tràn đầy.",
+    "Cầu cho quý phật tử bốn mùa an khang, tám tiết thịnh vượng, bình an may mắn."
+  ];
+  const prayer = matchedGift.customPrayer || prayersList[Math.floor(Math.random() * prayersList.length)];
+
+  console.log(`[Công Đức] ${user.nickname} (${user.name}) tặng ${repeatCount}x ${matchedGift.giftName} -> +${pointsEarned} công đức! Lời cầu nguyện: "${prayer}"`);
 
   io.emit('gift_triggered', {
     user,
@@ -727,6 +1014,7 @@ function processGiftEvent(user, rawGiftName, repeatCount, diamonds) {
     repeatCount,
     points: pointsEarned,
     totalPoints: liveStats.totalPoints,
+    prayer,
     leaderboard: appConfig.leaderboard
   });
 }

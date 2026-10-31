@@ -291,9 +291,9 @@ function addVisitor(userOrName, skin, instant = false, userId = null, isBot = fa
     avatar: avatar || '',
     skin: chosenSkin,
     seat,
-    x: startX,
-    y: startY,
-    state: 'running_in',
+    x: instant ? seat.x : startX,
+    y: instant ? seat.y : startY,
+    state: instant ? 'sit' : 'running_in',
     t: 0,
     frame: 0,
     ft: 0,
@@ -464,6 +464,43 @@ function playMusicTrack(idx) {
     if (nowPlayingEl) nowPlayingEl.textContent = '♪ ' + track.name;
   } catch (e) {
     console.warn('Track play error:', e);
+  }
+}
+
+function playMusicByUrl(src, name) {
+  if (!AC) return;
+  const audioEl = new Audio(src);
+  audioEl.preload = 'auto';
+  audioEl.crossOrigin = 'anonymous';
+  audioEl.loop = true;
+
+  try {
+    const srcNode = AC.createMediaElementSource(audioEl);
+    const gain = AC.createGain();
+    gain.gain.value = 0;
+    srcNode.connect(gain);
+    gain.connect(musicGain);
+
+    const now = AC.currentTime;
+    gain.gain.linearRampToValueAtTime(1, now + 1.8);
+
+    for (const old of musicEls) {
+      old.gain.cancelScheduledValues(now);
+      old.gain.setValueAtTime(old.gain.gain.value, now);
+      old.gain.linearRampToValueAtTime(0, now + 1.8);
+      setTimeout(() => { try { old.el.pause(); } catch (e) {} }, 2000);
+    }
+    musicEls = [{ el: audioEl, gain }];
+
+    audioEl.addEventListener('error', () => {
+      console.warn('[Audio] Lỗi tải bài nhạc tùy chỉnh, thử lại track mặc định');
+      setTimeout(() => playMusicTrack(0), 2000);
+    });
+
+    audioEl.play().catch(() => {});
+    if (nowPlayingEl) nowPlayingEl.textContent = '♪ ' + (name || 'Nhạc Thiền');
+  } catch (e) {
+    console.warn('Custom track play error:', e);
   }
 }
 
@@ -669,11 +706,18 @@ const SUTRA_CHIC = [
   'Nguyện đem công đức này hướng về tất cả chúng sinh'
 ];
 
-function triggerDonation(v, coins, kind = 'lotus', text = '') {
+function triggerDonation(v, coins, kind = 'lotus', text = '', prayer = '') {
   if (!v) return;
   v.coins += coins;
   v.glow = 1.0;
   v.bow = 1.0;
+
+  const prayerBlessing = prayer || text || 'Cầu cho thân tâm an lạc, sở cầu như ý, vạn sự hanh thông.';
+
+  // Hiển thị lời cầu an lên bong bóng thoại của phật tử
+  v.speech = `🙏 ${prayerBlessing}`;
+  v.speechTimer = 8.5;
+  v.speechTotal = 8.5;
 
   const isBig = coins >= 20;
 
@@ -728,11 +772,11 @@ function triggerDonation(v, coins, kind = 'lotus', text = '') {
   };
   const label = kindNames[kind] || 'Lễ vật';
 
-  addFeedMessage(v.name, `cúng dường ${label} ×${coins}` + (text ? ` · "${text}"` : ''), true);
-  showToast(`${v.name} cúng dường ${label} · Công đức vô lượng`);
+  addFeedMessage(v.name, `cúng dường ${label} ×${coins}` + (prayerBlessing ? ` · "${prayerBlessing}"` : ''), true);
+  showToast(`📜 Cầu an cho ${v.name}: "${prayerBlessing}" 🙏`);
   if (config.tts?.enabledGift !== false) {
     const cleanDonor = cleanSpeakerName(v.name);
-    speakBlessing(`Công đức ${cleanDonor} cúng dường ${label}. Nam mô A Di Đà Phật.`);
+    speakBlessing(`Công đức phật tử ${cleanDonor} cúng dường ${label}. ${prayerBlessing}. Nam mô A Di Đà Phật.`);
   }
   renderLeaderboard();
 }
@@ -1446,8 +1490,75 @@ socket.on('gift_triggered', (data) => {
   else if (actionType.includes('bell') || actionType.includes('chuông')) fxKind = 'bell';
   else if (actionType.includes('petal') || actionType.includes('hoa') || actionType.includes('rose')) fxKind = 'petal';
 
-  const prayerText = SUTRA_CHIC[Math.floor(Math.random() * SUTRA_CHIC.length)];
-  triggerDonation(v, points, fxKind, prayerText);
+  const prayerText = data.prayer || SUTRA_CHIC[Math.floor(Math.random() * SUTRA_CHIC.length)];
+  triggerDonation(v, points, fxKind, prayerText, data.prayer);
+});
+
+// ─── Lời Thoại Thầy Trụ Trì Từ Admin ──────────────────────────────
+const masterSpeechCard = document.getElementById('masterSpeechCard');
+const masterSpeechAuthor = document.getElementById('masterSpeechAuthor');
+const masterSpeechText = document.getElementById('masterSpeechText');
+
+function showMasterSpeech(speaker, text) {
+  if (!masterSpeechCard || !masterSpeechText) return;
+  if (masterSpeechAuthor) masterSpeechAuthor.textContent = speaker || 'Thầy Trụ Trì';
+  masterSpeechText.textContent = text;
+  masterSpeechCard.removeAttribute('hidden');
+  masterSpeechCard.classList.add('show');
+
+  clearTimeout(showMasterSpeech._t);
+  showMasterSpeech._t = setTimeout(() => {
+    masterSpeechCard.classList.remove('show');
+    setTimeout(() => masterSpeechCard.setAttribute('hidden', ''), 400);
+  }, 9500);
+}
+
+socket.on('admin_speech', (data) => {
+  const text = (data.text || '').trim();
+  const speaker = (data.speakerName || 'Thầy Trụ Trì').trim();
+  if (!text) return;
+
+  console.log(`[Admin Thoại] 📢 ${speaker}: "${text}"`);
+  showMasterSpeech(speaker, text);
+  speakSpeechQueue(text, 'high');
+  bell(false);
+});
+
+// ─── Đổi Nhạc Đang Phát Từ Admin ─────────────────────────────────
+socket.on('change_music', (data) => {
+  if (!data || !data.url) return;
+  console.log('[Music] 🎶 Đổi bài nhạc:', data.name, data.url);
+  showToast(`🎵 Đang phát: ${data.name}`);
+  if (audioStarted) {
+    playMusicByUrl(data.url, data.name);
+  } else {
+    TRACKS[0] = { src: data.url, name: data.name };
+  }
+});
+
+// ─── Nạp Phật Tử Hàng Loạt Vào Chánh Điện (Fetch Thủ Công) ────────
+socket.on('load_bulk_devotees', (data) => {
+  const viewers = data.viewers || [];
+  if (!Array.isArray(viewers) || viewers.length === 0) return;
+
+  let added = 0;
+  viewers.forEach((u, i) => {
+    let v = findVisitor(u);
+    if (!v) {
+      const skin = SKINS[i % SKINS.length];
+      v = addVisitor(u, skin, true, u.id || ('bulk_' + i), false);
+      if (v && v.seat) {
+        v.x = v.seat.x;
+        v.y = v.seat.y;
+        v.state = 'sit';
+        v.stayTimer = 180 + Math.random() * 120;
+        added++;
+      }
+    }
+  });
+
+  showToast(`🙏 Đã cung thỉnh ${added} phật tử vào Chánh Điện trang nghiêm!`);
+  bell(false);
 });
 
 socket.on('tiktok_share', (data) => {

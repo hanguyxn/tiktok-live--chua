@@ -39,6 +39,14 @@ const tabMeta = {
     title: '🏆 Bảng Công Đức & Top 1',
     desc: 'Quản lý danh sách Phật tử, Top 1 sẽ tự động nhận vương miện 👑 vàng trên thẻ tên'
   },
+  'tab-music': {
+    title: '🎵 Quản Lý Thư Viện Nhạc Chùa',
+    desc: 'Tải lên các file âm thanh và chủ động chọn bài nhạc đang phát ra luồng Chánh Điện'
+  },
+  'tab-speech': {
+    title: '📢 Admin Chủ Động Phát Thoại Ra Chánh Điện',
+    desc: 'Phát giọng đọc AI (TTS) và hiển thị thẻ lời thoại của Thầy Trụ Trì ra luồng trực tiếp'
+  },
   'tab-temple': {
     title: '⚙️ Cài Đặt Chung',
     desc: 'Tùy chỉnh tên chùa, lời tựa, chuông mõ và các bảng hiển thị'
@@ -755,6 +763,11 @@ socket.on('init_state', (data) => {
     renderLeaderboardTable(currentConfig.leaderboard);
   }
 
+  if (currentConfig.prayers) {
+    renderPrayersTable(currentConfig.prayers);
+  }
+  loadMusicList();
+
   if (currentConfig.temple) {
     if (inputTempleName) inputTempleName.value = currentConfig.temple.name || 'Chùa Online';
     if (inputTempleSub) inputTempleSub.value = currentConfig.temple.subTitle || 'Tịnh tâm - Tích đức - Cầu an';
@@ -817,3 +830,398 @@ socket.on('bot_updated', (bot) => {
   if (currentConfig) currentConfig.bot = bot;
   updateBotUI(bot);
 });
+
+// ========================================================
+// 1. FETCH DANH SÁCH NGƯỜI XEM TRONG LIVE THỦ CÔNG
+// ========================================================
+const btnFetchViewers = document.getElementById('btn-fetch-viewers');
+const fetchViewersAlert = document.getElementById('fetch-viewers-alert');
+
+if (btnFetchViewers) {
+  btnFetchViewers.addEventListener('click', async () => {
+    btnFetchViewers.disabled = true;
+    const oldText = btnFetchViewers.textContent;
+    btnFetchViewers.textContent = '⏳ Đang Quét Người Xem...';
+    if (fetchViewersAlert) {
+      fetchViewersAlert.style.display = 'block';
+      fetchViewersAlert.textContent = 'Đang quét danh sách người xem trên phòng Live và chuẩn bị chỗ an tọa...';
+    }
+
+    try {
+      const res = await fetch('/api/tiktok/fetch-viewers', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        if (fetchViewersAlert) {
+          fetchViewersAlert.style.display = 'block';
+          fetchViewersAlert.textContent = `✅ ${data.message}`;
+          setTimeout(() => { if (fetchViewersAlert) fetchViewersAlert.style.display = 'none'; }, 6000);
+        }
+      } else {
+        if (fetchViewersAlert) {
+          fetchViewersAlert.style.display = 'block';
+          fetchViewersAlert.textContent = `❌ ${data.error || 'Không thể quét danh sách'}`;
+        }
+      }
+    } catch (err) {
+      if (fetchViewersAlert) {
+        fetchViewersAlert.style.display = 'block';
+        fetchViewersAlert.textContent = `❌ Lỗi kết nối: ${err.message}`;
+      }
+    } finally {
+      btnFetchViewers.disabled = false;
+      btnFetchViewers.textContent = oldText;
+    }
+  });
+}
+
+// ========================================================
+// 2. QUẢN LÝ DANH SÁCH CÂU CẦU AN KHI TẶNG QUÀ
+// ========================================================
+const prayersTableBody = document.getElementById('prayers-table-body');
+const newPrayerInput = document.getElementById('new-prayer-input');
+const btnAddPrayer = document.getElementById('btn-add-prayer');
+
+function renderPrayersTable(prayers) {
+  if (!prayersTableBody) return;
+  prayersTableBody.innerHTML = '';
+  if (!Array.isArray(prayers) || prayers.length === 0) {
+    prayersTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #999; padding: 15px;">Chưa có câu cầu an nào. Hãy thêm câu mới bên trên.</td></tr>';
+    return;
+  }
+
+  prayers.forEach((text, idx) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="text-align: center; color: #ffd700; font-weight: bold;">${idx + 1}</td>
+      <td style="color: #fff8e7;">${text}</td>
+      <td style="text-align: center;">
+        <button class="btn-sm btn-danger btn-delete-prayer" data-index="${idx}">🗑 Xóa</button>
+      </td>
+    `;
+    prayersTableBody.appendChild(tr);
+  });
+
+  document.querySelectorAll('.btn-delete-prayer').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const index = parseInt(btn.getAttribute('data-index'), 10);
+      if (isNaN(index)) return;
+      if (!confirm('Bạn có chắc muốn xóa câu cầu an này?')) return;
+      currentConfig.prayers.splice(index, 1);
+      renderPrayersTable(currentConfig.prayers);
+      await savePrayersConfig();
+    });
+  });
+}
+
+async function savePrayersConfig() {
+  try {
+    await fetch('/api/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prayers: currentConfig.prayers })
+    });
+  } catch (e) {
+    console.error('Lỗi lưu prayers:', e);
+  }
+}
+
+if (btnAddPrayer && newPrayerInput) {
+  btnAddPrayer.addEventListener('click', async () => {
+    const text = newPrayerInput.value.trim();
+    if (!text) {
+      alert('Vui lòng nhập nội dung câu cầu an');
+      return;
+    }
+    if (!currentConfig.prayers) currentConfig.prayers = [];
+    currentConfig.prayers.push(text);
+    newPrayerInput.value = '';
+    renderPrayersTable(currentConfig.prayers);
+    await savePrayersConfig();
+  });
+
+  newPrayerInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      btnAddPrayer.click();
+    }
+  });
+}
+
+// ========================================================
+// 3. QUẢN LÝ NHẠC CHÙA & UPLOAD FILE
+// ========================================================
+const btnBrowseMusic = document.getElementById('btn-browse-music');
+const musicFileInput = document.getElementById('music-file-input');
+const musicFileChosen = document.getElementById('music-file-chosen');
+const btnUploadMusic = document.getElementById('btn-upload-music');
+const uploadMusicProgress = document.getElementById('upload-music-progress');
+const musicTableBody = document.getElementById('music-table-body');
+const adminAudioPlayer = document.getElementById('admin-audio-player');
+const adminAudioName = document.getElementById('admin-audio-name');
+const adminAudioElement = document.getElementById('admin-audio-element');
+
+let currentMusicTracks = [];
+
+async function loadMusicList() {
+  if (!musicTableBody) return;
+  try {
+    const res = await fetch('/api/music/list');
+    const data = await res.json();
+    if (data.success && Array.isArray(data.tracks)) {
+      currentMusicTracks = data.tracks;
+      renderMusicTable(data.tracks, data.currentTrack);
+    }
+  } catch (err) {
+    console.error('Lỗi tải danh sách nhạc:', err);
+    musicTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #ff6b6b; padding: 15px;">Lỗi kết nối tải danh sách nhạc</td></tr>';
+  }
+}
+
+function renderMusicTable(tracks, currentTrack) {
+  if (!musicTableBody) return;
+  musicTableBody.innerHTML = '';
+  if (tracks.length === 0) {
+    musicTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999; padding: 20px;">Chưa có file nhạc nào trong thư viện.</td></tr>';
+    return;
+  }
+
+  tracks.forEach(track => {
+    const isPlaying = track.fileName === currentTrack || track.isPlaying;
+    const tr = document.createElement('tr');
+    tr.style.background = isPlaying ? 'rgba(0, 255, 136, 0.08)' : '';
+    tr.innerHTML = `
+      <td>
+        <strong style="color: ${isPlaying ? '#00ff88' : '#ffd700'};">${track.name}</strong>
+        <div style="font-size: 11px; color: #888; font-family: monospace;">${track.fileName}</div>
+      </td>
+      <td style="color: #ccc; font-size: 13px;">${track.sizeFormatted || '--'}</td>
+      <td style="text-align: center;">
+        ${isPlaying 
+          ? '<span style="display: inline-block; padding: 3px 10px; border-radius: 12px; background: #27ae60; color: #fff; font-size: 11px; font-weight: bold;">▶ ĐANG PHÁT</span>'
+          : '<span style="display: inline-block; padding: 3px 10px; border-radius: 12px; background: rgba(255, 255, 255, 0.1); color: #aaa; font-size: 11px;">Đang chờ</span>'
+        }
+      </td>
+      <td style="text-align: center;">
+        <div style="display: flex; gap: 6px; justify-content: center;">
+          ${!isPlaying 
+            ? `<button class="btn-sm btn-primary btn-select-track" data-file="${track.fileName}" style="background: #27ae60; border-color: #219653;">▶ Phát Bài Này</button>`
+            : '<button class="btn-sm" disabled style="opacity: 0.6; cursor: default;">✅ Đang Live</button>'
+          }
+          <button class="btn-sm btn-secondary btn-preview-track" data-file="${track.fileName}" data-name="${track.name}" data-url="${track.url}">🔊 Nghe</button>
+          <button class="btn-sm btn-danger btn-delete-track" data-file="${track.fileName}">🗑</button>
+        </div>
+      </td>
+    `;
+    musicTableBody.appendChild(tr);
+  });
+
+  // Gắn sự kiện chọn phát bài
+  document.querySelectorAll('.btn-select-track').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const fileName = btn.getAttribute('data-file');
+      if (!fileName) return;
+      btn.disabled = true;
+      btn.textContent = '⏳ Đang đổi...';
+      try {
+        const res = await fetch('/api/music/select', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fileName })
+        });
+        const data = await res.json();
+        if (data.success) {
+          loadMusicList();
+        } else {
+          alert('Không thể đổi bài nhạc: ' + (data.error || 'Lỗi'));
+        }
+      } catch (err) {
+        alert('Lỗi kết nối: ' + err.message);
+      }
+    });
+  });
+
+  // Gắn sự kiện nghe thử trên admin
+  document.querySelectorAll('.btn-preview-track').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const url = btn.getAttribute('data-url');
+      const name = btn.getAttribute('data-name');
+      if (!url || !adminAudioElement || !adminAudioPlayer) return;
+      adminAudioPlayer.style.display = 'flex';
+      if (adminAudioName) adminAudioName.textContent = name;
+      adminAudioElement.src = url;
+      adminAudioElement.play().catch(e => console.warn('Preview error:', e));
+    });
+  });
+
+  // Gắn sự kiện xóa bài
+  document.querySelectorAll('.btn-delete-track').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const fileName = btn.getAttribute('data-file');
+      if (!fileName) return;
+      if (!confirm(`Bạn có chắc muốn xóa file nhạc "${fileName}"?`)) return;
+      try {
+        const res = await fetch('/api/music/' + encodeURIComponent(fileName), { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          loadMusicList();
+        } else {
+          alert('Không thể xóa file: ' + (data.error || 'Lỗi'));
+        }
+      } catch (err) {
+        alert('Lỗi khi xóa file: ' + err.message);
+      }
+    });
+  });
+}
+
+// Xử lý chọn file upload
+if (btnBrowseMusic && musicFileInput) {
+  btnBrowseMusic.addEventListener('click', () => musicFileInput.click());
+  musicFileInput.addEventListener('change', () => {
+    const file = musicFileInput.files[0];
+    if (file) {
+      if (musicFileChosen) musicFileChosen.textContent = `${file.name} (${(file.size / 1024 / 1024).toFixed(1)} MB)`;
+      if (btnUploadMusic) btnUploadMusic.style.display = 'inline-block';
+    } else {
+      if (musicFileChosen) musicFileChosen.textContent = 'Chưa chọn file';
+      if (btnUploadMusic) btnUploadMusic.style.display = 'none';
+    }
+  });
+}
+
+// Xử lý tải lên file nhạc
+if (btnUploadMusic && musicFileInput) {
+  btnUploadMusic.addEventListener('click', async () => {
+    const file = musicFileInput.files[0];
+    if (!file) {
+      alert('Vui lòng chọn file âm thanh');
+      return;
+    }
+    const formData = new FormData();
+    formData.append('audioFile', file);
+
+    btnUploadMusic.disabled = true;
+    btnUploadMusic.textContent = '⏳ Đang Tải Lên...';
+    if (uploadMusicProgress) {
+      uploadMusicProgress.style.display = 'block';
+      uploadMusicProgress.style.color = '#00ff88';
+      uploadMusicProgress.textContent = `Đang tải lên "${file.name}"... Vui lòng chờ trong giây lát.`;
+    }
+
+    try {
+      const res = await fetch('/api/music/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (uploadMusicProgress) {
+          uploadMusicProgress.textContent = `✅ Tải lên bài nhạc "${file.name}" thành công!`;
+          setTimeout(() => { if (uploadMusicProgress) uploadMusicProgress.style.display = 'none'; }, 4000);
+        }
+        musicFileInput.value = '';
+        if (musicFileChosen) musicFileChosen.textContent = 'Chưa chọn file';
+        if (btnUploadMusic) btnUploadMusic.style.display = 'none';
+        loadMusicList();
+      } else {
+        if (uploadMusicProgress) {
+          uploadMusicProgress.style.color = '#ff6b6b';
+          uploadMusicProgress.textContent = `❌ Lỗi tải lên: ${data.error || 'Không xác định'}`;
+        }
+      }
+    } catch (err) {
+      if (uploadMusicProgress) {
+        uploadMusicProgress.style.color = '#ff6b6b';
+        uploadMusicProgress.textContent = `❌ Lỗi kết nối tải lên: ${err.message}`;
+      }
+    } finally {
+      btnUploadMusic.disabled = false;
+      btnUploadMusic.textContent = '⬆️ Tải Lên Ngay';
+    }
+  });
+}
+
+socket.on('music_list_updated', (data) => {
+  if (data && Array.isArray(data.tracks)) {
+    renderMusicTable(data.tracks, currentConfig.currentTrack);
+  }
+});
+
+// ========================================================
+// 4. ADMIN CHỦ ĐỘNG GỬI LỜI THOẠI (TTS & THÔNG BÁO)
+// ========================================================
+const adminSpeechText = document.getElementById('admin-speech-text');
+const adminSpeechSpeaker = document.getElementById('admin-speech-speaker');
+const btnBroadcastSpeech = document.getElementById('btn-broadcast-speech');
+const btnPreviewSpeech = document.getElementById('btn-preview-speech');
+const speechStatusMsg = document.getElementById('speech-status-msg');
+
+// Bấm câu gợi ý để điền nhanh
+document.querySelectorAll('.quick-speech-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const text = chip.getAttribute('data-text');
+    if (text && adminSpeechText) {
+      adminSpeechText.value = text;
+      adminSpeechText.focus();
+    }
+  });
+});
+
+// Phát giọng nói ra Chánh Điện
+if (btnBroadcastSpeech && adminSpeechText) {
+  btnBroadcastSpeech.addEventListener('click', async () => {
+    const text = adminSpeechText.value.trim();
+    if (!text) {
+      alert('Vui lòng nhập nội dung lời thoại');
+      return;
+    }
+    const speakerName = (adminSpeechSpeaker?.value || 'Thầy Trụ Trì').trim();
+
+    btnBroadcastSpeech.disabled = true;
+    btnBroadcastSpeech.textContent = '⏳ Đang Phát Ra Chánh Điện...';
+    if (speechStatusMsg) speechStatusMsg.textContent = '';
+
+    try {
+      const res = await fetch('/api/admin/broadcast-speech', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, speakerName })
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (speechStatusMsg) {
+          speechStatusMsg.textContent = `✅ Đã phát thành công ra Chánh Điện!`;
+          setTimeout(() => { if (speechStatusMsg) speechStatusMsg.textContent = ''; }, 5000);
+        }
+      } else {
+        alert('Lỗi: ' + (data.error || 'Không thể phát'));
+      }
+    } catch (err) {
+      alert('Lỗi kết nối: ' + err.message);
+    } finally {
+      btnBroadcastSpeech.disabled = false;
+      btnBroadcastSpeech.textContent = '📢 Phát Giọng Nói (TTS) Ra Chánh Điện';
+    }
+  });
+}
+
+// Nghe thử giọng đọc trên máy Admin (Web Speech API)
+if (btnPreviewSpeech && adminSpeechText) {
+  btnPreviewSpeech.addEventListener('click', () => {
+    const text = adminSpeechText.value.trim();
+    if (!text) {
+      alert('Vui lòng nhập lời thoại để nghe thử');
+      return;
+    }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'vi-VN';
+      u.rate = 1.05;
+      const viVoice = window.speechSynthesis.getVoices().find(v => v.lang.includes('vi') || v.lang.includes('VN'));
+      if (viVoice) u.voice = viVoice;
+      window.speechSynthesis.speak(u);
+    } else {
+      alert('Trình duyệt của bạn không hỗ trợ SpeechSynthesis để nghe thử trực tiếp.');
+    }
+  });
+}

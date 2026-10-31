@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bảng Quản Trị - Chùa Online 2.5D TikTok Live</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div class="admin-wrapper">
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar">
+      <div class="brand-box">
+        <span class="brand-icon">🛕</span>
+        <div class="brand-text">
+          <h2>Chùa Online 2.5D</h2>
+          <p>TikTok LIVE Studio</p>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-tab="tab-tiktok">
+          <span class="nav-icon">📡</span> Kết Nối TikTok
+        </button>
+        <button class="nav-item" data-tab="tab-studio" style="border-left: 3px solid #00ff88; background: rgba(0, 255, 136, 0.08);">
+          <span class="nav-icon">🎥</span> Hướng Dẫn LIVE Studio
+        </button>
+        <button class="nav-item" data-tab="tab-simulator">
+          <span class="nav-icon">🎮</span> Trình Giả Lập Test
+        </button>
+        <button class="nav-item" data-tab="tab-gifts">
+          <span class="nav-icon">🎁</span> Cài Đặt Quà & Nghi Lễ
+        </button>
+        <button class="nav-item" data-tab="tab-goals">
+          <span class="nav-icon">🎯</span> Thiết Lập Mục Tiêu
+        </button>
+        <button class="nav-item" data-tab="tab-leaderboard">
+          <span class="nav-icon">🏆</span> Bảng Công Đức & Top 1
+        </button>
+        <button class="nav-item" data-tab="tab-temple">
+          <span class="nav-icon">⚙️</span> Cài Đặt Chung
+        </button>
+      </nav>
+
+      <div class="obs-quick-card">
+        <h4>🎥 Đường dẫn Chánh Điện 9:16</h4>
+        <input type="text" id="obs-url-input" value="http://localhost:3000/app.html" readonly>
+        <div class="obs-btn-group">
+          <button id="copy-obs-url-btn" class="btn-sm">📋 Copy Link</button>
+          <a href="/app.html" target="_blank" class="btn-sm btn-outline">👁️ Mở Chánh Điện</a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-content">
+      <!-- Top Status Header -->
+      <header class="content-header">
+        <div class="header-title">
+          <h1 id="page-title">📡 Kết Nối TikTok Live</h1>
+          <p id="page-desc">Nhập Username kênh TikTok để bắt đầu truyền dữ liệu vào màn hình Chánh Điện 2.5D</p>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <button id="btn-header-bot-toggle" title="Bật/Tắt chế độ Phật tử ảo" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 215, 0, 0.4); color: #ffd700; border-radius: 999px; padding: 6px 14px; cursor: pointer; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
+            <span id="header-bot-dot" style="width: 8px; height: 8px; border-radius: 50%; background: #e74c3c; display: inline-block;"></span>
+            <span id="header-bot-label">Bot Phật tử: TẮT</span>
+          </button>
+          <div class="connection-status-pill disconnected" id="conn-status-pill">
+            <span class="status-dot"></span>
+            <span id="conn-status-text">Chưa kết nối TikTok</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- TAB 1: KẾT NỐI TIKTOK -->
+      <section class="tab-pane active" id="tab-tiktok">
+        <div class="card">
+          <div class="card-header">
+            <h3>Kết Nối Trực Tiếp Kênh TikTok</h3>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label for="tiktok-username-input">Tên Kênh TikTok (Username có hoặc không có dấu @):</label>
+              <div class="input-action-group">
+                <input type="text" id="tiktok-username-input" value="hanguyxn" placeholder="Ví dụ: hanguyxn hoặc @hanguyxn">
+                <button id="btn-check-room" class="btn btn-secondary">🔍 Kiểm Tra Phòng Live</button>
+                <button id="btn-connect-tiktok" class="btn btn-primary">🔗 Kết Nối</button>
+                <button id="btn-disconnect-tiktok" class="btn btn-danger" style="display: none;">❌ Ngắt Kết Nối</button>
+              </div>
+              <small class="helper-text">💡 <strong>Mẹo:</strong> Bấm <em>"🔍 Kiểm Tra Phòng Live"</em> để xem trước tiêu đề, số người xem và trạng thái phòng trước khi kết nối.</small>
+            </div>
+
+            <!-- Thẻ hiển thị thông tin trực tiếp buổi Live -->
+            <div id="live-preview-card" style="display: none; margin-top: 15px; padding: 15px; border-radius: 10px; background: rgba(255, 215, 0, 0.08); border: 1px solid rgba(255, 215, 0, 0.35);">
+              <div style="display: flex; gap: 14px; align-items: center;">
+                <img id="preview-streamer-avatar" src="" alt="Avatar" style="width: 58px; height: 58px; border-radius: 50%; border: 2px solid #ffd700; object-fit: cover;">
+                <div style="flex: 1; min-width: 0;">
+                  <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <strong id="preview-streamer-name" style="color: #ffd700; font-size: 15px;">--</strong>
+                    <span id="preview-status-badge" style="padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; background: #27ae60; color: #fff;">🟢 ĐANG LIVE</span>
+                  </div>
+                  <div id="preview-room-title" style="color: #f5eedc; font-size: 13px; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">(Chưa có tiêu đề)</div>
+                  <div style="display: flex; gap: 15px; margin-top: 6px; font-size: 12px; color: #ccc; flex-wrap: wrap;">
+                    <span>👥 Đang xem: <strong id="preview-viewers" style="color: #00ff88;">0</strong></span>
+                    <span>💖 Thả tim: <strong id="preview-likes" style="color: #ff6b81;">0</strong></span>
+                    <span>🆔 Room ID: <code id="preview-room-id" style="color: #ffd700;">--</code></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group mt-3" style="background: rgba(255, 215, 0, 0.05); padding: 12px; border-radius: 8px; border: 1px dashed rgba(255, 215, 0, 0.3);">
+              <label for="tiktok-cookie-input" style="color: #ffd700; font-weight: bold;">
+                🍪 Xác Thực Bằng Cookie TikTok (Khuyên Dùng - Tránh Bị TikTok Giới Hạn):
+              </label>
+              <textarea id="tiktok-cookie-input" rows="2" style="width: 100%; background: #140803; border: 1px solid #b8860b; color: #fff; border-radius: 6px; padding: 8px; font-family: monospace; font-size: 12px;" placeholder="Dán cookie hoặc sessionid vào đây (Ví dụ: sessionid=xxxxxx...; tt-target-idc=alisg hoặc chỉ dán mã sessionid)"></textarea>
+              <small class="helper-text" style="color: #e0d0b0; display: block; margin-top: 6px; line-height: 1.5;">
+                💡 <strong>Cách lấy Cookie nhanh trong 20s:</strong><br>
+                1. Dùng Chrome vào <a href="https://www.tiktok.com" target="_blank" style="color: #ffd700; text-decoration: underline;">tiktok.com</a> đăng nhập tài khoản TikTok của bạn.<br>
+                2. Bấm phím <strong>F12</strong> ➜ Tab <strong>Application (Ứng dụng)</strong> ➜ Cột trái chọn <strong>Cookies</strong> ➜ <code>https://www.tiktok.com</code>.<br>
+                3. Tìm dòng <strong>sessionid</strong> copy giá trị dán vào đây để duy trì kết nối bền vững 24/7.
+              </small>
+            </div>
+
+            <div class="form-group mt-3">
+              <label for="tiktok-apikey-input">🔑 Euler Stream API Key (Tùy chọn - Miễn phí):</label>
+              <input type="text" id="tiktok-apikey-input" placeholder="Dán API Key từ eulerstream.com (nếu có)">
+              <small class="helper-text">Mặc định tool kết nối trực tiếp. Nếu bạn có tài khoản Euler Stream, dán API key vào đây.</small>
+            </div>
+
+            <div class="status-detail-box" id="conn-detail-box">
+              <div class="info-row">
+                <span>Chủ phòng / Streamer:</span>
+                <strong id="live-streamer-name">--</strong>
+              </div>
+              <div class="info-row">
+                <span>Tiêu đề buổi Live:</span>
+                <strong id="live-room-title" style="max-width: 280px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">--</strong>
+              </div>
+              <div class="info-row">
+                <span>Trạng thái phòng:</span>
+                <strong id="live-room-status">Chờ kết nối</strong>
+              </div>
+              <div class="info-row">
+                <span>Room ID:</span>
+                <strong id="live-room-id">--</strong>
+              </div>
+              <div class="info-row">
+                <span>Tổng Phật tử đang xem:</span>
+                <strong id="live-viewers-count">0</strong>
+              </div>
+              <div class="info-row">
+                <span>Tổng lượt Thả Tim:</span>
+                <strong id="live-likes-count">0</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: HƯỚNG DẪN TIKTOK LIVE STUDIO -->
+      <section class="tab-pane" id="tab-studio">
+        <div class="card" style="border: 2px solid #00ff88;">
+          <div class="card-header" style="background: rgba(0, 255, 136, 0.08);">
+            <h3 style="color: #00ff88; margin: 0;">🎥 Hướng Dẫn Phát Live Bằng TikTok LIVE Studio</h3>
+            <p style="margin: 4px 0 0 0; font-size: 13px; color: #ccc;">Sử dụng ứng dụng chính thức TikTok LIVE Studio trên máy tính để phát sóng Chánh Điện 2.5D chuẩn 1080x1920 sắc nét</p>
+          </div>
+          <div class="card-body tips-list">
+            <div class="tip-item">
+              <span class="tip-num" style="background: #00ff88; color: #000; font-weight: bold;">1</span>
+              <div>
+                <strong>Tải và Mở TikTok LIVE Studio:</strong>
+                <p>Nếu bạn chưa cài, truy cập <a href="https://livecenter.tiktok.com" target="_blank" style="color: #00ff88; font-weight: bold; text-decoration: underline;">livecenter.tiktok.com</a> và bấm nút <strong>"Tải LIVE Studio"</strong> ở góc trên bên phải. Cài đặt và đăng nhập nick TikTok của bạn.</p>
+              </div>
+            </div>
+            <div class="tip-item">
+              <span class="tip-num" style="background: #00ff88; color: #000; font-weight: bold;">2</span>
+              <div>
+                <strong>Mở Màn Hình Chánh Điện 2.5D:</strong>
+                <p>Bấm nút bên dưới để mở cửa sổ Chùa Online trên máy tính:
+                  <br>
+                  <a href="/app.html" target="_blank" class="btn btn-primary mt-2" style="display: inline-flex; align-items: center; gap: 6px;">
+                    👁️ Mở Tab Chánh Điện (http://localhost:3000/app.html)
+                  </a>
+                  <br>
+                  <small class="text-muted">Nhấn phím <strong>F11</strong> trên bàn phím để chuyển sang chế độ Toàn Màn Hình.</small>
+                </p>
+              </div>
+            </div>
+            <div class="tip-item">
+              <span class="tip-num" style="background: #00ff88; color: #000; font-weight: bold;">3</span>
+              <div>
+                <strong>Thêm Nguồn Vào TikTok LIVE Studio:</strong>
+                <p>Trong TikTok LIVE Studio, ở cột <strong>Nguồn (Sources)</strong> bên trái:
+                  <br>• Bấm <strong>+ Thêm nguồn (+ Add Source)</strong>.
+                  <br>• Chọn <strong>Quay cửa sổ (Window Capture)</strong> ➜ Chọn cửa sổ trình duyệt đang chạy <em>Chùa Online</em>.
+                  <br>• Hoặc chọn <strong>Nguồn liên kết / Browser Source</strong> ➜ Dán URL: <code style="color: #ffd700; background: #000; padding: 2px 6px; border-radius: 4px;">http://localhost:3000/app.html</code> với độ phân giải <strong>1080 x 1920</strong>.
+                </p>
+              </div>
+            </div>
+            <div class="tip-item">
+              <span class="tip-num" style="background: #00ff88; color: #000; font-weight: bold;">4</span>
+              <div>
+                <strong>Bắt Đầu Live & Kết Nối Tương Tác:</strong>
+                <p>Trong TikTok LIVE Studio, bấm <strong>Bắt đầu LIVE (Go LIVE)</strong>. Sau đó quay lại Bảng Quản Trị này, tab <strong>"Kết Nối TikTok"</strong>, nhập username kênh của bạn (ví dụ: <strong style="color: #ffd700;">hanguyxn</strong>) và bấm <strong>"🔗 Kết Nối"</strong>. Mọi bình luận, quà tặng và lượt tim sẽ tự động tương tác trực tiếp lên màn hình chánh điện!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: TRÌNH GIẢ LẬP TEST (SIMULATOR) -->
+      <section class="tab-pane" id="tab-simulator">
+        <div class="card">
+          <div class="card-header">
+            <h3>🎮 Giả Lập Sự Kiện Quà Tặng & Nghi Lễ (Không cần Live thật)</h3>
+            <span class="badge-tag">Test trực tiếp trên màn hình Chánh Điện</span>
+          </div>
+          <div class="card-body">
+            <p class="mb-3 text-muted">Bấm vào bất kỳ nút nào dưới đây để kiểm tra hiệu ứng hoạt họa bước đi, cúi đầu lễ Phật, chuông mõ và cánh sen:</p>
+            <div class="simulator-grid" id="sim-gifts-grid"></div>
+          </div>
+        </div>
+
+        <div class="card mt-4">
+          <div class="card-header">
+            <h3>💬 Giả Lập Tương Tác Của Phật Tử</h3>
+          </div>
+          <div class="card-body">
+            <div class="simulator-actions-grid">
+              <button class="sim-btn sim-chat" id="sim-chat-btn">
+                <span>💬</span>
+                <strong>Bình luận Niệm Phật</strong>
+                <small>Hiện bong bóng chat & cúi đầu</small>
+              </button>
+              <button class="sim-btn sim-member" id="sim-member-btn" style="border: 2px solid #00ff88;">
+                <span>🚶</span>
+                <strong>Phật Tử Vào & Đọc Tên</strong>
+                <small>Bước vào bồ đoàn & AI đọc chào mừng</small>
+              </button>
+              <button class="sim-btn sim-like" id="sim-like-btn">
+                <span>💖</span>
+                <strong>Thả +50 Tim</strong>
+                <small>Hào quang Phật bừng sáng</small>
+              </button>
+              <button class="sim-btn sim-share" id="sim-share-btn">
+                <span>🔗</span>
+                <strong>Chia Sẻ Live (+1)</strong>
+                <small>Ghi nhận công đức chia sẻ</small>
+              </button>
+              <button class="sim-btn sim-halo" id="sim-halo-btn">
+                <span>✨</span>
+                <strong>Phật Phát Hào Quang</strong>
+                <small>Chuông ngân & hào quang</small>
+              </button>
+              <button class="sim-btn sim-gold" id="sim-gold-btn">
+                <span>🪷</span>
+                <strong>Mưa Hoa Sen Rực Rỡ</strong>
+                <small>Cánh sen bay khắp chánh điện</small>
+              </button>
+              <button class="sim-btn" id="sim-leave-btn" style="border: 2px solid #ff9900;">
+                <span>🚪</span>
+                <strong>1 Phật Tử Ra Về</strong>
+                <small>Đứng dậy, bước ra cửa & biến mất</small>
+              </button>
+              <button class="sim-btn" id="sim-clear-btn" style="border: 2px solid #e74c3c;">
+                <span>🧹</span>
+                <strong>Dọn Sạch Chánh Điện</strong>
+                <small>Tất cả Phật tử đứng dậy ra về</small>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: CÀI ĐẶT QUÀ & HIỆU ỨNG (GIFT SETUP) -->
+      <section class="tab-pane" id="tab-gifts">
+        <div class="card">
+          <div class="card-header space-between">
+            <div>
+              <h3>🎁 Danh Sách Quà Tặng & Nghi Lễ</h3>
+              <p class="subtitle">Cấu hình quà TikTok nào sẽ kích hoạt nghi lễ nào trong chánh điện</p>
+            </div>
+            <button id="btn-add-gift" class="btn btn-primary">+ Thêm Quà Mới</button>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="styled-table" id="gifts-table">
+                <thead>
+                  <tr>
+                    <th>Bật</th>
+                    <th>Icon</th>
+                    <th>Tên Quà TikTok</th>
+                    <th>Từ Khóa Key</th>
+                    <th>Nghi Lễ Hiển Thị</th>
+                    <th>Hiệu Ứng FX</th>
+                    <th>Điểm Công Đức</th>
+                    <th>Thao Tác</th>
+                  </tr>
+                </thead>
+                <tbody id="gifts-table-body"></tbody>
+              </table>
+            </div>
+
+            <div class="action-footer mt-4">
+              <button id="btn-save-gifts" class="btn btn-success">💾 Lưu Cấu Hình Quà Tặng</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: THIẾT LẬP MỤC TIÊU (GOALS) -->
+      <section class="tab-pane" id="tab-goals">
+        <div class="card">
+          <div class="card-header">
+            <h3>🎯 Thiết Lập Mục Tiêu Thả Tim & Chia Sẻ</h3>
+          </div>
+          <div class="card-body">
+            <div class="grid-2-col">
+              <div class="goal-card">
+                <h4>💖 Mục Tiêu Thả Tim</h4>
+                <div class="form-group">
+                  <label>Số tim cần đạt:</label>
+                  <input type="number" id="input-like-goal" value="3200">
+                </div>
+                <div class="form-group">
+                  <label>Số tim hiện tại:</label>
+                  <input type="number" id="input-like-current" value="0">
+                </div>
+                <div class="form-group">
+                  <label>Phần thưởng khi hoàn thành:</label>
+                  <input type="text" id="input-like-reward" value="Phật phát hào quang">
+                </div>
+              </div>
+
+              <div class="goal-card">
+                <h4>🔗 Mục Tiêu Chia Sẻ</h4>
+                <div class="form-group">
+                  <label>Số lượt chia sẻ cần đạt:</label>
+                  <input type="number" id="input-share-goal" value="50">
+                </div>
+                <div class="form-group">
+                  <label>Số lượt chia sẻ hiện tại:</label>
+                  <input type="number" id="input-share-current" value="0">
+                </div>
+                <div class="form-group">
+                  <label>Phần thưởng khi hoàn thành:</label>
+                  <input type="text" id="input-share-reward" value="Mưa sen thanh tịnh">
+                </div>
+              </div>
+            </div>
+
+            <div class="action-footer mt-4">
+              <button id="btn-save-goals" class="btn btn-success">💾 Lưu Mục Tiêu</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 6: BẢNG CÔNG ĐỨC (LEADERBOARD) -->
+      <section class="tab-pane" id="tab-leaderboard">
+        <div class="card">
+          <div class="card-header space-between">
+            <div>
+              <h3>🏆 Bảng Tấm Lòng Thành & Top 1</h3>
+              <p class="subtitle">Top 1 công đức sẽ được hiển thị vương miện 👑 vàng trên thẻ tên</p>
+            </div>
+            <button id="btn-reset-leaderboard" class="btn btn-danger">🗑️ Reset Bảng Công Đức Ngày Mới</button>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="styled-table" id="leaderboard-table">
+                <thead>
+                  <tr>
+                    <th>Hạng</th>
+                    <th>Vị Trí Danh Dự</th>
+                    <th>Tên Tài Khoản</th>
+                    <th>Pháp Danh / Nickname</th>
+                    <th>Điểm Công Đức</th>
+                  </tr>
+                </thead>
+                <tbody id="leaderboard-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 7: CÀI ĐẶT CHUNG (TEMPLE SETTINGS) -->
+      <section class="tab-pane" id="tab-temple">
+        <div class="card">
+          <div class="card-header">
+            <h3>⚙️ Tùy Chỉnh Chùa & Giọng Nói AI</h3>
+          </div>
+          <div class="card-body">
+            <div class="grid-2-col">
+              <div>
+                <h4>🛕 Thông Tin Chùa & Chuông Mõ</h4>
+                <div class="form-group">
+                  <label>Tên Chùa (Hiển thị đầu màn hình):</label>
+                  <input type="text" id="input-temple-name" value="Chùa Online">
+                </div>
+                <div class="form-group">
+                  <label>Lời đề tựa:</label>
+                  <input type="text" id="input-temple-sub" value="Tịnh tâm - Tích đức - Cầu an">
+                </div>
+                <div class="checkbox-group mt-3">
+                  <label>
+                    <input type="checkbox" id="chk-auto-chant" checked> Tự động gõ mõ đều đặn nhịp nhàng
+                  </label>
+                  <label>
+                    <input type="checkbox" id="chk-show-leaderboard" checked> Hiển thị Bảng Tấm Lòng Thành Top 3
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <h4>🗣️ Giọng Nói AI Đọc Tên Phật Tử (TTS)</h4>
+                <div class="checkbox-group">
+                  <label style="color: #00ff88; font-weight: bold;">
+                    <input type="checkbox" id="chk-tts-member" checked> 🔊 Đọc tên người vào xem Live (Chào mừng tự động)
+                  </label>
+                  <label style="color: #ffd700; font-weight: bold;">
+                    <input type="checkbox" id="chk-tts-gift" checked> 🔊 Đọc tên & quà người cúng dường Tam Bảo
+                  </label>
+                </div>
+                <div class="form-group mt-3">
+                  <label>Mẫu câu chào mừng (Dùng <code>{name}</code>):</label>
+                  <input type="text" id="input-tts-template" value="Hoan nghênh {name} vào chánh điện">
+                  <small class="helper-text">Ví dụ: <em>Hoan nghênh {name} vào chánh điện</em>, hoặc <em>Chào mừng {name} ghé thăm chùa</em></small>
+                </div>
+                <div class="form-group mt-3">
+                  <label>Tốc độ đọc giọng nói:</label>
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="range" id="input-tts-speed" min="80" max="140" value="105" style="flex: 1;">
+                    <span id="val-tts-speed" style="font-weight: bold; color: #00ff88; min-width: 45px;">1.05x</span>
+                  </div>
+                  <small class="helper-text">Tự động chọn giọng đọc truyền cảm tự nhiên (Microsoft Hoài My / Nam Minh hoặc Google Tiếng Việt).</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="action-footer mt-4">
+              <button id="btn-save-temple" class="btn btn-success">💾 Lưu Cài Đặt</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- THIẾT LẬP BOT & PHẬT TỬ VÀO / RA -->
+        <div class="card mt-4" style="border: 2px solid rgba(255, 215, 0, 0.45);">
+          <div class="card-header" style="background: rgba(255, 215, 0, 0.08); display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h3 style="color: #ffd700; margin: 0;">🤖 Quản Lý Phật Tử Ảo (Bot Tự Động) & Vào/Ra Chánh Điện</h3>
+              <p style="margin: 4px 0 0 0; font-size: 13px; color: #ccc;">Kiểm soát việc có thêm Phật tử ảo vào hay chỉ cho phép người thật từ TikTok Live</p>
+            </div>
+            <button id="btn-save-bot" class="btn btn-primary">💾 Lưu Cài Đặt Bot</button>
+          </div>
+          <div class="card-body">
+            <div class="grid-2-col">
+              <div>
+                <div class="checkbox-group">
+                  <label style="font-size: 15px; font-weight: bold; color: #ffd700;">
+                    <input type="checkbox" id="chk-bot-enabled"> Bật Phật tử ảo (Bot tự động dâng hương)
+                  </label>
+                </div>
+                <div style="margin-top: 10px; font-size: 13px; color: #ccc; line-height: 1.6; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px;">
+                  <p style="margin: 0 0 6px 0;">🔴 <strong>Khi TẮT (Khuyên dùng khi Live):</strong> Chánh điện chỉ có người thật từ TikTok Live ghé thăm. Không tự ý thêm người ảo linh tinh.</p>
+                  <p style="margin: 0;">🟢 <strong>Khi BẬT:</strong> Hệ thống tự động thêm Phật tử ảo vào ra lễ Phật để tạo không khí ấm cúng khi mới mở phòng Live.</p>
+                </div>
+              </div>
+
+              <div>
+                <div class="form-group">
+                  <label>Thời gian mỗi Phật tử ở lại chánh điện (giây):</label>
+                  <input type="number" id="input-bot-stay" value="60" min="15" max="600">
+                  <small class="helper-text">Hết thời gian này, Phật tử (chưa cúng dường) sẽ tự động đứng dậy bước ra khỏi chánh điện để nhường chỗ.</small>
+                </div>
+                <div class="form-group mt-3">
+                  <label>Số lượng Phật tử ảo tối đa:</label>
+                  <input type="number" id="input-bot-max" value="10" min="1" max="36">
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                  <button id="btn-quick-evict" class="btn btn-secondary" style="flex: 1;">🚪 Cho 1 Người Ra Về</button>
+                  <button id="btn-quick-clear" class="btn btn-danger" style="flex: 1;">🧹 Dọn Sạch Chánh Điện</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal Thêm / Chỉnh Sửa Quà Tặng -->
+  <div class="modal-overlay" id="gift-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-title">Thêm Quà Tặng Mới</h3>
+        <button class="modal-close" id="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="modal-gift-id">
+        <div class="form-group">
+          <label>Tên Quà TikTok (hiển thị):</label>
+          <input type="text" id="modal-gift-name" placeholder="Ví dụ: Hoa sen, Trống đồng, v.v.">
+        </div>
+        <div class="form-group">
+          <label>Mã nhận diện TikTok Key (viết thường):</label>
+          <input type="text" id="modal-gift-key" placeholder="Ví dụ: rose, doughnut, flower, v.v.">
+        </div>
+        <div class="form-group">
+          <label>Biểu tượng Icon (Emoji):</label>
+          <input type="text" id="modal-gift-icon" placeholder="Ví dụ: 🪷, 🌹, 🔔, v.v.">
+        </div>
+        <div class="form-group">
+          <label>Nghi Lễ Tương Ứng (Tên hiển thị):</label>
+          <input type="text" id="modal-action-name" placeholder="Ví dụ: Thắp nén hương, Thỉnh chuông, v.v.">
+        </div>
+        <div class="form-group">
+          <label>Loại Hiệu Ứng FX:</label>
+          <select id="modal-action-type">
+            <option value="lotus">Dâng hoa sen (Hoa sen bay lên)</option>
+            <option value="incense">Thắp nén hương (Lư hương trầm)</option>
+            <option value="bell">Thỉnh đại hồng chung (Chuông ngân)</option>
+            <option value="petal">Cánh hoa sen rơi</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Điểm Công Đức:</label>
+          <input type="number" id="modal-gift-points" value="10" min="1">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="modal-cancel-btn">Hủy</button>
+        <button class="btn btn-primary" id="modal-save-btn">Lưu Lại</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,238 @@
+{
+  "temple": {
+    "name": "Chùa Online",
+    "subTitle": "Lời Phật Dạy · Sống Chậm & Bình Yên"
+  },
+  "gifts": [
+    {
+      "id": "gift_rose",
+      "giftName": "Hoa hồng",
+      "tiktokKey": "rose",
+      "icon": "🌹",
+      "actionName": "Thắp nén hương",
+      "actionType": "incense",
+      "points": 1,
+      "sound": "incense",
+      "enabled": true,
+      "description": "Thắp nén hương thơm vào lư đồng, khói tỏa thanh tịnh"
+    },
+    {
+      "id": "gift_finger_heart",
+      "giftName": "Tim ngón tay",
+      "tiktokKey": "finger_heart",
+      "icon": "🫰",
+      "actionName": "Thắp nến",
+      "actionType": "candle",
+      "points": 5,
+      "sound": "bell_soft",
+      "enabled": true,
+      "description": "Thắp sáng hàng nến hoa sen lung linh ấm áp"
+    },
+    {
+      "id": "gift_flower",
+      "giftName": "Bó hoa",
+      "tiktokKey": "flower",
+      "icon": "💐",
+      "actionName": "Dâng hoa sen",
+      "actionType": "lotus",
+      "points": 10,
+      "sound": "chime",
+      "enabled": true,
+      "description": "Dâng đóa hoa sen ngát hương lên tòa sen Phật"
+    },
+    {
+      "id": "gift_donut",
+      "giftName": "Bánh donut",
+      "tiktokKey": "doughnut",
+      "icon": "🍩",
+      "actionName": "Thỉnh chuông",
+      "actionType": "bell",
+      "points": 30,
+      "sound": "temple_bell",
+      "enabled": true,
+      "description": "Thỉnh đại hồng chung ngân nga tiếng Boong chấn động tâm can"
+    },
+    {
+      "id": "gift_heart_hands",
+      "giftName": "Tay bắn tim",
+      "tiktokKey": "heart_me",
+      "icon": "🫶",
+      "actionName": "Dâng mâm ngũ quả",
+      "actionType": "fruit",
+      "points": 50,
+      "sound": "blessing",
+      "enabled": true,
+      "description": "Dâng mâm ngũ quả cầu sung túc tài lộc bình an"
+    },
+    {
+      "id": "gift_corgi",
+      "giftName": "Chó Corgi",
+      "tiktokKey": "corgi",
+      "icon": "🐕",
+      "actionName": "Phóng sinh cá chép",
+      "actionType": "fish",
+      "points": 100,
+      "sound": "water_splash",
+      "enabled": true,
+      "description": "Phóng sinh đàn cá chép vàng lội suối bơi qua hồ sen"
+    },
+    {
+      "id": "gift_money_gun",
+      "giftName": "Súng tiền",
+      "tiktokKey": "money_gun",
+      "icon": "💸",
+      "actionName": "Thả hoa đăng",
+      "actionType": "lantern",
+      "points": 500,
+      "sound": "celestial",
+      "enabled": true,
+      "description": "Thả hoa đăng lung linh cầu nguyện quốc thái dân an"
+    },
+    {
+      "id": "gift_lion",
+      "giftName": "Sư tử",
+      "tiktokKey": "lion",
+      "icon": "🦁",
+      "actionName": "Rồng Vàng hộ pháp",
+      "actionType": "dragon",
+      "points": 1000,
+      "sound": "dragon_roar",
+      "enabled": true,
+      "description": "Kim Long hộ pháp giáng thế bay lượn hào quang chói lòa"
+    }
+  ],
+  "goals": {
+    "likeGoal": 3200,
+    "likeCurrent": 3196,
+    "likeReward": "Phật phát hào quang",
+    "shareGoal": 10,
+    "shareCurrent": 111,
+    "shareReward": "Mưa vàng"
+  },
+  "audio": {
+    "masterVolume": 0.8,
+    "bgmVolume": 0.35,
+    "sfxVolume": 0.9,
+    "enableBgm": true,
+    "enableSfx": true,
+    "autoChantSound": true
+  },
+  "display": {
+    "showGiftGuide": true,
+    "showLeaderboard": true,
+    "showGoals": true,
+    "maxAvatars": 80,
+    "avatarSpeechDuration": 5000
+  },
+  "leaderboard": [
+    {
+      "id": "sim_736",
+      "name": "Phật_Tử_527",
+      "nickname": "Diệu Tâm",
+      "points": 1000
+    },
+    {
+      "id": "sim_959",
+      "name": "Phật_Tử_819",
+      "nickname": "Diệu Tâm",
+      "points": 1000
+    },
+    {
+      "id": "sim_281",
+      "name": "Phật_Tử_931",
+      "nickname": "Diệu Tâm",
+      "points": 1000
+    },
+    {
+      "id": "sim_587",
+      "name": "Phật_Tử_558",
+      "nickname": "Diệu Tâm",
+      "points": 505
+    },
+    {
+      "id": "sim_756",
+      "name": "Phật_Tử_414",
+      "nickname": "Diệu Tâm",
+      "points": 500
+    },
+    {
+      "id": "sim_99",
+      "name": "Phật_Tử_877",
+      "nickname": "Diệu Tâm",
+      "points": 500
+    },
+    {
+      "id": "sim_802",
+      "name": "Phật_Tử_315",
+      "nickname": "Diệu Tâm",
+      "points": 500
+    },
+    {
+      "id": "sim_706",
+      "name": "Phật_Tử_674",
+      "nickname": "Diệu Tâm",
+      "points": 500
+    },
+    {
+      "id": "sim_792",
+      "name": "Phật_Tử_144",
+      "nickname": "Diệu Tâm",
+      "points": 100
+    },
+    {
+      "id": "sim_372",
+      "name": "Phật_Tử_645",
+      "nickname": "Diệu Tâm",
+      "points": 100
+    },
+    {
+      "id": "sim_186",
+      "name": "Phật_Tử_921",
+      "nickname": "Diệu Tâm",
+      "points": 50
+    },
+    {
+      "id": "sim_30",
+      "name": "Phật_Tử_604",
+      "nickname": "Diệu Tâm",
+      "points": 50
+    },
+    {
+      "id": "sim_52",
+      "name": "Phật_Tử_730",
+      "nickname": "Diệu Tâm",
+      "points": 30
+    },
+    {
+      "id": "sim_112",
+      "name": "Phật_Tử_476",
+      "nickname": "Diệu Tâm",
+      "points": 10
+    },
+    {
+      "id": "sim_309",
+      "name": "Phật_Tử_658",
+      "nickname": "Diệu Tâm",
+      "points": 10
+    }
+  ],
+  "tiktok": {
+    "username": "locketgold_re",
+    "status": "disconnected",
+    "apiKey": "euler_OWQ4MjJkODk0OTU2NDY2NmE1ZjQzZWI4NzJmY2YwYzFjNDc1MzdkZWE1YzJhZDk4NTEwYTlj",
+    "cookie": "sessionid=abc123456789; tt-target-idc=alisg"
+  },
+  "tts": {
+    "enabledMember": false,
+    "enabledGift": true,
+    "memberTemplate": "Hoan nghênh {name} vào chánh điện",
+    "speed": 1.17,
+    "pitch": 1
+  },
+  "bot": {
+    "enabled": false,
+    "stayDurationSec": 60,
+    "maxBots": 10,
+    "autoLeave": true
+  }
+}

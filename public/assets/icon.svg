@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#4a1c06" />
+      <stop offset="60%" stop-color="#1f0902" />
+      <stop offset="100%" stop-color="#0a0301" />
+    </radialGradient>
+    <radialGradient id="gold" cx="50%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#fff5cc" />
+      <stop offset="40%" stop-color="#ffd700" />
+      <stop offset="100%" stop-color="#b8860b" />
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#bg)" stroke="#ffd700" stroke-width="8" />
+  <!-- Vòng hào quang -->
+  <circle cx="256" cy="230" r="140" fill="none" stroke="url(#gold)" stroke-width="8" stroke-dasharray="8 6" opacity="0.8" />
+  <!-- Tượng Phật vàng -->
+  <path d="M256 120 C280 120 295 140 295 170 C295 200 280 220 256 220 C232 220 217 200 217 170 C217 140 232 120 256 120 Z" fill="url(#gold)" />
+  <circle cx="256" cy="100" r="18" fill="url(#gold)" />
+  <!-- Thân Phật kiết già -->
+  <path d="M190 230 C220 215 292 215 322 230 C345 280 370 330 380 360 C320 385 192 385 132 360 C142 330 167 280 190 230 Z" fill="url(#gold)" />
+  <!-- Đài sen -->
+  <path d="M120 370 C160 420 352 420 392 370 C352 390 160 390 120 370 Z" fill="#ff7597" stroke="#ffd700" stroke-width="4" />
+  <!-- Chữ Vạn / Chùa Online -->
+  <text x="256" y="460" font-family="'Cinzel', serif" font-size="38" font-weight="bold" fill="#ffd700" text-anchor="middle" letter-spacing="2">CHÙA ONLINE</text>
+</svg>

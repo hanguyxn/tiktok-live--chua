@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chùa Online 3D - Three.js TikTok Live Tool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: radial-gradient(circle at 50% 30%, #381504 0%, #150601 70%, #080200 100%);
+      color: #fff;
+      font-family: 'Quicksand', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .portal-box {
+      background: rgba(28, 12, 5, 0.9);
+      border: 2px solid #ffd700;
+      border-radius: 24px;
+      padding: 40px;
+      max-width: 860px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 15px 50px rgba(0,0,0,0.8), inset 0 0 25px rgba(255, 215, 0, 0.2);
+    }
+    .portal-icon { font-size: 64px; filter: drop-shadow(0 0 15px #ffd700); margin-bottom: 12px; }
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 34px;
+      color: #ffea75;
+      text-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+      margin-bottom: 8px;
+    }
+    p.desc { font-size: 15.5px; color: #d4af37; margin-bottom: 30px; }
+    .portal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .portal-card {
+      background: rgba(45, 20, 8, 0.85);
+      border: 1.5px solid rgba(212, 175, 55, 0.5);
+      border-radius: 16px;
+      padding: 26px 20px;
+      text-decoration: none;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.3s ease;
+    }
+    .portal-card:hover {
+      transform: translateY(-5px);
+      border-color: #ffd700;
+      box-shadow: 0 10px 30px rgba(255, 215, 0, 0.35);
+      background: rgba(65, 30, 12, 0.95);
+    }
+    .card-icon { font-size: 42px; }
+    .card-title { font-size: 19px; font-weight: 700; color: #ffd700; }
+    .card-subtitle { font-size: 13px; color: #e6be60; line-height: 1.4; text-align: center; }
+    .btn-enter {
+      margin-top: 8px;
+      background: linear-gradient(135deg, #ffd700, #b8860b);
+      color: #3b1b00;
+      font-weight: 700;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 13.5px;
+    }
+    .footer-note {
+      margin-top: 26px;
+      font-size: 13.5px;
+      color: #a69182;
+      background: rgba(0,0,0,0.3);
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px dashed rgba(212, 175, 55, 0.3);
+    }
+    .footer-note strong {
+      color: #ffd700;
+    }
+    @media(max-width: 650px) {
+      .portal-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="portal-box">
+    <div class="portal-icon">🛕</div>
+    <h1>Chùa Online 3D - TikTok Live Interactive</h1>
+    <p class="desc">Đồ họa 3D Three.js: Mỗi người xem là 1 nhân vật 3D, Người Top cúng bái trên Đỉnh Đài Sen, Phật tử dâng hương, Phát live trực tiếp bằng màn hình điện thoại!</p>
+
+    <div class="portal-grid">
+      <!-- Màn hình WebApp Chuẩn Ảnh Mẫu cho Điện Thoại & OBS -->
+      <a href="app.html" class="portal-card" style="border-color: #ffd700; box-shadow: 0 0 20px rgba(255, 215, 0, 0.25);">
+        <span class="card-icon">🛕</span>
+        <div class="card-title">Màn Hình Chùa Chuẩn Mẫu (Khuyên Dùng)</div>
+        <div class="card-subtitle">Giao diện đúng chuẩn ảnh mẫu: Chánh điện Phật vàng, Sư thầy gõ mõ dẫn lễ, Phật tử chibi hai bên, khói hương nghi ngút, bảng công đức và quà tặng. Hỗ trợ PWA Fullscreen ẩn giờ pin.</div>
+        <span class="btn-enter">Vào Chùa Ngay ▶</span>
+      </a>
+
+      <!-- Bảng điều khiển Admin -->
+      <a href="admin.html" class="portal-card">
+        <span class="card-icon">📱</span>
+        <div class="card-title">Bảng Quản Trị & Quét QR Điện Thoại</div>
+        <div class="card-subtitle">Lấy mã QR để mở Chùa trên điện thoại, kết nối tài khoản TikTok Live, giả lập tương tác, hướng dẫn ẩn giờ pin và quản lý bảng công đức.</div>
+        <span class="btn-enter">Mở Trang Quản Trị ▶</span>
+      </a>
+    </div>
+
+    <div class="footer-note">
+      📱 <strong>Cách Live Không Cần TikTok Studio:</strong> Mở trang Quản Trị ➜ Quét mã QR vào điện thoại ➜ Trên app TikTok chọn tính năng <strong>Trò chơi di động (Màn hình)</strong> ➜ Bắt đầu Live phát toàn bộ cảnh Chùa 3D!
+    </div>
+  </div>
+</body>
+</html>

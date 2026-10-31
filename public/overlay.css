@@ -1,0 +1,1295 @@
+/* ========================================================
+   CHÙA ONLINE - TIKTOK LIVE INTERACTIVE OVERLAY CSS
+   Phong cách Phật Giáo Á Đông Tráng Lệ, Viền Vàng Hoàng Kim
+   ======================================================== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #0b0502;
+  font-family: 'Quicksand', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #fff;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* Container chuẩn 9:16 cho OBS Studio (1080 x 1920 hoặc scale linh hoạt) */
+#stream-container {
+  position: relative;
+  width: 1080px;
+  height: 1920px;
+  max-height: 100vh;
+  aspect-ratio: 9 / 16;
+  background: radial-gradient(circle at 50% 25%, #421c08 0%, #1e0b02 50%, #0c0401 100%);
+  overflow: hidden;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+}
+
+/* Lớp nền Chánh Điện Chùa */
+.temple-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Cột chùa gỗ lim hai bên */
+.pillar {
+  position: absolute;
+  top: 0;
+  width: 60px;
+  height: 100%;
+  background: linear-gradient(90deg, #1f0b03 0%, #441806 40%, #5a2008 60%, #1f0b03 100%);
+  border-left: 2px solid rgba(255, 215, 0, 0.2);
+  border-right: 2px solid rgba(255, 215, 0, 0.2);
+  z-index: 5;
+}
+.pillar-left { left: 0; }
+.pillar-right { right: 0; }
+
+/* Lồng đèn chùa treo tỏa sáng ấm áp */
+.temple-lantern {
+  position: absolute;
+  width: 48px;
+  height: 90px;
+  background: radial-gradient(circle at 50% 40%, #ff4d00 0%, #cc0000 70%, #660000 100%);
+  border-radius: 24px;
+  box-shadow: 0 0 35px #ff5500, inset 0 0 15px #ffd700;
+  z-index: 6;
+  animation: lanternSway 4s ease-in-out infinite alternate;
+}
+.temple-lantern::after {
+  content: '';
+  position: absolute;
+  bottom: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 25px;
+  background: #ffcc00;
+  box-shadow: 0 5px 10px #ff3300;
+}
+.lantern-left-1 { top: 120px; left: 75px; }
+.lantern-left-2 { top: 320px; left: 75px; animation-delay: -1.5s; }
+.lantern-right-1 { top: 120px; right: 75px; animation-delay: -0.7s; }
+.lantern-right-2 { top: 320px; right: 75px; animation-delay: -2.3s; }
+
+@keyframes lanternSway {
+  0% { transform: rotate(-3deg); }
+  100% { transform: rotate(3deg); }
+}
+
+/* Vòng Hào Quang Phật Thần Thánh (Mandala & Hào quang xoay) */
+.buddha-halo-container {
+  position: absolute;
+  top: 170px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 580px;
+  height: 580px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+}
+
+.halo-outer-rays {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(255, 235, 130, 0.8) 0deg 10deg,
+    rgba(255, 170, 0, 0.1) 10deg 20deg,
+    rgba(255, 235, 130, 0.8) 20deg 30deg,
+    rgba(255, 170, 0, 0.1) 30deg 40deg,
+    rgba(255, 235, 130, 0.8) 40deg 50deg,
+    rgba(255, 170, 0, 0.1) 50deg 60deg,
+    rgba(255, 235, 130, 0.8) 60deg 70deg,
+    rgba(255, 170, 0, 0.1) 70deg 80deg,
+    rgba(255, 235, 130, 0.8) 80deg 90deg,
+    rgba(255, 170, 0, 0.1) 90deg 100deg,
+    rgba(255, 235, 130, 0.8) 100deg 110deg,
+    rgba(255, 170, 0, 0.1) 110deg 120deg,
+    rgba(255, 235, 130, 0.8) 120deg 130deg,
+    rgba(255, 170, 0, 0.1) 130deg 140deg,
+    rgba(255, 235, 130, 0.8) 140deg 150deg,
+    rgba(255, 170, 0, 0.1) 150deg 160deg,
+    rgba(255, 235, 130, 0.8) 160deg 170deg,
+    rgba(255, 170, 0, 0.1) 170deg 180deg,
+    rgba(255, 235, 130, 0.8) 180deg 190deg,
+    rgba(255, 170, 0, 0.1) 190deg 20deg,
+    rgba(255, 235, 130, 0.8) 200deg 210deg,
+    rgba(255, 170, 0, 0.1) 210deg 220deg,
+    rgba(255, 235, 130, 0.8) 220deg 230deg,
+    rgba(255, 170, 0, 0.1) 230deg 240deg,
+    rgba(255, 235, 130, 0.8) 240deg 250deg,
+    rgba(255, 170, 0, 0.1) 250deg 260deg,
+    rgba(255, 235, 130, 0.8) 260deg 270deg,
+    rgba(255, 170, 0, 0.1) 270deg 280deg,
+    rgba(255, 235, 130, 0.8) 280deg 290deg,
+    rgba(255, 170, 0, 0.1) 290deg 300deg,
+    rgba(255, 235, 130, 0.8) 300deg 310deg,
+    rgba(255, 170, 0, 0.1) 310deg 320deg,
+    rgba(255, 235, 130, 0.8) 320deg 330deg,
+    rgba(255, 170, 0, 0.1) 330deg 340deg,
+    rgba(255, 235, 130, 0.8) 340deg 350deg,
+    rgba(255, 170, 0, 0.1) 350deg 360deg
+  );
+  filter: blur(14px);
+  animation: spinRays 35s linear infinite;
+  opacity: 0.85;
+}
+
+@keyframes spinRays {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.halo-inner-glow {
+  position: absolute;
+  width: 440px;
+  height: 440px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 220, 0.95) 0%, rgba(255, 204, 0, 0.8) 45%, rgba(204, 119, 0, 0.3) 75%, transparent 100%);
+  filter: blur(10px);
+  animation: pulseHalo 4s ease-in-out infinite alternate;
+}
+
+@keyframes pulseHalo {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  100% { transform: scale(1.06); opacity: 1; filter: blur(15px); }
+}
+
+.halo-mandala {
+  position: absolute;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 235, 140, 0.9);
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.9), inset 0 0 30px rgba(255, 215, 0, 0.6);
+  background: repeating-conic-gradient(rgba(255, 220, 100, 0.15) 0% 5%, transparent 5% 10%);
+}
+
+/* Tượng Phật Thích Ca */
+.buddha-statue {
+  position: absolute;
+  top: 180px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 470px;
+  height: 520px;
+  z-index: 3;
+  filter: drop-shadow(0 15px 35px rgba(255, 215, 0, 0.45));
+  animation: buddhaBreathe 6s ease-in-out infinite alternate;
+}
+
+@keyframes buddhaBreathe {
+  0% { transform: translateX(-50%) translateY(0); }
+  100% { transform: translateX(-50%) translateY(-6px); }
+}
+
+.buddha-svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Hiệu ứng hào quang siêu bừng sáng khi đủ tim */
+.buddha-statue.super-glow {
+  filter: drop-shadow(0 0 60px #fff7a1) drop-shadow(0 0 100px #ffbb00) brightness(1.3);
+  animation: divineExplosion 2s ease-in-out 3;
+}
+
+@keyframes divineExplosion {
+  0% { transform: translateX(-50%) scale(1); }
+  50% { transform: translateX(-50%) scale(1.08); }
+  100% { transform: translateX(-50%) scale(1); }
+}
+
+/* Chuông Đại Hồng Chung bên phải */
+.great-bell-container {
+  position: absolute;
+  top: 360px;
+  right: 120px;
+  width: 110px;
+  height: 170px;
+  z-index: 4;
+}
+
+.bell-stand {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 20px;
+  background: #3e1e0d;
+  border: 2px solid #8b5a2b;
+  border-radius: 4px;
+}
+
+.bell-body {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 75px;
+  height: 110px;
+  background: radial-gradient(circle at 35% 35%, #e6be60 0%, #aa771c 50%, #4a2f00 100%);
+  border-radius: 35px 35px 12px 12px;
+  border: 2px solid #ffd700;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.8), inset 0 0 15px #ffd700;
+  transform-origin: top center;
+}
+
+.bell-soundwave {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 3px solid #ffea75;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.bell-body.ringing {
+  animation: bellSway 0.6s ease-in-out 4;
+}
+
+@keyframes bellSway {
+  0% { transform: translateX(-50%) rotate(0deg); }
+  25% { transform: translateX(-50%) rotate(12deg); }
+  75% { transform: translateX(-50%) rotate(-12deg); }
+  100% { transform: translateX(-50%) rotate(0deg); }
+}
+
+.bell-soundwave.active {
+  animation: waveExpand 1.5s ease-out forwards;
+}
+
+@keyframes waveExpand {
+  0% { width: 30px; height: 30px; opacity: 1; border-color: #ffd700; }
+  100% { width: 280px; height: 280px; opacity: 0; border-color: #ff9900; }
+}
+
+.bell-mallet {
+  position: absolute;
+  right: -25px;
+  top: 75px;
+  width: 50px;
+  height: 14px;
+  background: linear-gradient(90deg, #593300, #996515);
+  border-radius: 6px;
+  transform-origin: right center;
+  transition: transform 0.2s;
+}
+
+.bell-mallet.strike {
+  transform: rotate(-35deg);
+}
+
+/* Bàn Thờ & Lư Hương Đồng */
+.altar-table {
+  position: absolute;
+  top: 670px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 820px;
+  height: 140px;
+  background: linear-gradient(180deg, #441a08 0%, #290f04 70%, #150601 100%);
+  border-top: 4px solid #d4af37;
+  border-radius: 8px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), inset 0 2px 10px rgba(255, 215, 0, 0.4);
+  z-index: 4;
+}
+
+/* Đôi đèn cầy / nến hoa sen */
+.candle-stand {
+  position: absolute;
+  top: -65px;
+  width: 28px;
+  height: 70px;
+  background: linear-gradient(180deg, #ffcc00 0%, #996515 100%);
+  border-radius: 4px;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+}
+.candle-left { left: 90px; }
+.candle-right { right: 90px; }
+
+.flame {
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 18px;
+  height: 32px;
+  background: radial-gradient(ellipse at 50% 80%, #fff 0%, #ffe600 35%, #ff3700 80%, transparent 100%);
+  border-radius: 50% 50% 35% 35%;
+  filter: drop-shadow(0 0 12px #ff6a00);
+  animation: flicker 0.25s infinite alternate ease-in-out;
+}
+
+@keyframes flicker {
+  0% { transform: translateX(-50%) scale(0.95, 1); opacity: 0.9; }
+  100% { transform: translateX(-50%) scale(1.08, 1.15) rotate(2deg); opacity: 1; }
+}
+
+/* Mâm ngũ quả dâng lễ */
+.fruit-tray-container {
+  position: absolute;
+  top: -50px;
+  left: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0.85;
+  transition: all 0.5s;
+}
+.fruit-tray-container.active {
+  transform: scale(1.3);
+  opacity: 1;
+  filter: drop-shadow(0 0 20px #ffd700);
+}
+.fruit-tray-content {
+  font-size: 32px;
+  letter-spacing: -6px;
+}
+
+/* Lư Hương Đồng Khổng Lồ */
+.incense-burner-wrap {
+  position: absolute;
+  top: -75px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 180px;
+  height: 120px;
+}
+
+.incense-burner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 45% 35%, #ffd700 0%, #aa771c 45%, #593b0a 100%);
+  border-radius: 20px 20px 45px 45px;
+  border: 3px solid #ffea75;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.8), inset 0 0 15px #ffd700;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.burner-symbol {
+  font-size: 42px;
+  color: #fff2a3;
+  text-shadow: 0 0 10px #ffbb00;
+  font-weight: bold;
+}
+
+.incense-sticks {
+  position: absolute;
+  top: -45px;
+  display: flex;
+  gap: 8px;
+}
+
+.incense-sticks .stick {
+  width: 4px;
+  height: 48px;
+  background: linear-gradient(180deg, #ff3300 0%, #ff8800 20%, #800000 60%, #4d1a00 100%);
+  border-radius: 2px;
+  position: relative;
+}
+
+.incense-sticks .stick::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -2px;
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #ff3300, 0 0 20px #ff9900;
+  animation: glowEmber 1.2s infinite alternate;
+}
+
+@keyframes glowEmber {
+  0% { transform: scale(0.8); opacity: 0.7; }
+  100% { transform: scale(1.3); opacity: 1; }
+}
+
+/* Sư Thầy / Chú Tiểu Dẫn Lễ */
+.master-monk {
+  position: absolute;
+  top: 620px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 170px;
+  height: 230px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 6;
+}
+
+.monk-bubble {
+  background: rgba(255, 255, 255, 0.95);
+  color: #7a3200;
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  margin-bottom: 5px;
+  white-space: nowrap;
+  animation: monkTalkFloat 3s infinite alternate ease-in-out;
+}
+
+@keyframes monkTalkFloat {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-4px); }
+}
+
+.monk-character {
+  position: relative;
+  width: 120px;
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.monk-head {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  background: #ffdbac;
+  border-radius: 50%;
+  border: 2px solid #e0aa75;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.monk-face {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.monk-eyes {
+  position: absolute;
+  top: 32px;
+  left: 15px;
+  width: 40px;
+  height: 8px;
+  border-bottom: 3px solid #5a3010;
+  border-radius: 0 0 20px 20px;
+}
+
+.monk-smile {
+  position: absolute;
+  top: 45px;
+  left: 26px;
+  width: 18px;
+  height: 10px;
+  background: #c93b2b;
+  border-radius: 0 0 15px 15px;
+}
+
+.monk-blush-left {
+  position: absolute;
+  top: 38px;
+  left: 8px;
+  width: 12px;
+  height: 7px;
+  background: #ff9999;
+  border-radius: 50%;
+  opacity: 0.7;
+}
+
+.monk-blush-right {
+  position: absolute;
+  top: 38px;
+  right: 8px;
+  width: 12px;
+  height: 7px;
+  background: #ff9999;
+  border-radius: 50%;
+  opacity: 0.7;
+}
+
+.monk-ear {
+  position: absolute;
+  top: 25px;
+  width: 12px;
+  height: 22px;
+  background: #ffdbac;
+  border-radius: 8px;
+}
+.ear-l { left: -8px; }
+.ear-r { right: -8px; }
+
+.monk-body {
+  position: relative;
+  width: 90px;
+  height: 80px;
+  margin-top: -8px;
+}
+
+.monk-robe {
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 40% 40%, #e6a100 0%, #b87800 65%, #664100 100%);
+  border-radius: 35px 35px 25px 25px;
+  border: 2px solid #ffd700;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.5);
+}
+
+.monk-beads {
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 26px;
+}
+
+.monk-arm-mallet {
+  position: absolute;
+  top: 25px;
+  right: 5px;
+  width: 25px;
+  height: 38px;
+  background: #e6a100;
+  border-radius: 12px;
+  transform-origin: top right;
+  transition: transform 0.1s ease;
+}
+
+.monk-arm-mallet.strike {
+  transform: rotate(-25deg);
+}
+
+/* Chiếc Mõ Gỗ Cá Vàng */
+.wooden-fish-mò {
+  position: absolute;
+  bottom: 0;
+  right: 5px;
+  width: 36px;
+  height: 32px;
+  background: radial-gradient(circle at 40% 40%, #9e4b17 0%, #6e2c07 70%, #3d1400 100%);
+  border-radius: 18px 18px 10px 10px;
+  border: 2px solid #d4af37;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.6);
+}
+
+.fish-sound-effect {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 2px solid #ffd700;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fish-sound-effect.pulse {
+  animation: moPulse 0.4s ease-out;
+}
+
+@keyframes moPulse {
+  0% { transform: scale(0.6); opacity: 1; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+.monk-tag {
+  background: linear-gradient(90deg, #aa771c, #ffd700, #aa771c);
+  color: #3b1b00;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.6);
+  margin-top: 5px;
+  border: 1px solid #fff;
+  white-space: nowrap;
+}
+
+/* Thảm đỏ hoa sen */
+.red-carpet {
+  position: absolute;
+  top: 790px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 280px;
+  height: 1130px;
+  background: linear-gradient(180deg, #66070e 0%, #990d16 50%, #52050b 100%);
+  border-left: 4px solid #ffd700;
+  border-right: 4px solid #ffd700;
+  box-shadow: 0 0 30px rgba(0,0,0,0.8), inset 0 0 40px rgba(255, 215, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 3;
+}
+
+.lotus-emblem {
+  font-size: 38px;
+  opacity: 0.6;
+  filter: drop-shadow(0 0 8px #ffd700);
+}
+
+/* Khu vực Phật tử ngồi bồ đoàn hai bên */
+.devotees-floor {
+  position: absolute;
+  top: 800px;
+  left: 60px;
+  right: 60px;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.devotees-col {
+  width: 330px;
+  height: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 16px 12px;
+  padding-top: 20px;
+}
+
+/* Avatar Chibi Phật tử ngồi bồ đoàn */
+.devotee-seat {
+  position: relative;
+  width: 90px;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: devoteeSpawn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes devoteeSpawn {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Bồ đoàn hoa sen ngồi thiền */
+.cushion-mat {
+  position: absolute;
+  bottom: 0;
+  width: 70px;
+  height: 24px;
+  background: radial-gradient(circle at 50% 50%, #99001a 0%, #55000e 80%);
+  border-radius: 50%;
+  border: 2px solid #ffd700;
+  box-shadow: 0 5px 12px rgba(0,0,0,0.8);
+}
+
+.devotee-avatar {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 2px solid #ffd700;
+  background: #331500;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 28px;
+  z-index: 2;
+  margin-bottom: 2px;
+  animation: devoteePray 3s ease-in-out infinite alternate;
+}
+
+@keyframes devoteePray {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(3px) scale(0.97, 0.95); }
+  100% { transform: translateY(0); }
+}
+
+.devotee-name {
+  background: rgba(15, 6, 2, 0.85);
+  border: 1px solid rgba(255, 215, 0, 0.6);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 8px;
+  max-width: 85px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  z-index: 3;
+  text-align: center;
+}
+
+/* Bong bóng chat của Phật tử */
+.devotee-speech {
+  position: absolute;
+  top: -36px;
+  background: #fff;
+  color: #521e00;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.7);
+  white-space: nowrap;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 10;
+  animation: speechPop 4s forwards;
+}
+
+.devotee-speech::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px 6px 0;
+  border-style: solid;
+  border-color: #fff transparent;
+}
+
+@keyframes speechPop {
+  0% { transform: translateY(10px) scale(0.6); opacity: 0; }
+  15% { transform: translateY(0) scale(1); opacity: 1; }
+  85% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-10px) scale(0.8); opacity: 0; }
+}
+
+/* Canvas hiệu ứng khói hương & hạt bụi vàng */
+#effects-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 7;
+}
+
+/* GIAO DIỆN OVERLAY (UI PANELS) */
+
+/* 1. Header Chùa Online */
+.top-header {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 780px;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+}
+
+.temple-title-box {
+  background: rgba(28, 12, 5, 0.88);
+  border: 3px solid #d4af37;
+  border-radius: 22px;
+  padding: 14px 40px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(255, 215, 0, 0.35);
+  backdrop-filter: blur(8px);
+}
+
+.temple-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 38px;
+  font-weight: 900;
+  color: #ffea75;
+  text-shadow: 0 0 15px rgba(255, 215, 0, 0.8), 0 3px 6px #000;
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+
+.temple-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  font-size: 17px;
+  font-weight: 700;
+  color: #f7e6c4;
+}
+
+.stat-item strong {
+  color: #ffd700;
+  font-size: 19px;
+}
+
+.stat-divider {
+  color: #ffbb00;
+  opacity: 0.8;
+}
+
+/* Khung Panel Kính Viền Vàng Hoàng Kim */
+.panel-box {
+  position: absolute;
+  background: rgba(24, 10, 4, 0.84);
+  border: 2px solid rgba(212, 175, 55, 0.85);
+  border-radius: 18px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.85), inset 0 0 15px rgba(255, 215, 0, 0.2);
+  backdrop-filter: blur(8px);
+  z-index: 10;
+  overflow: hidden;
+}
+
+.panel-header {
+  background: linear-gradient(90deg, rgba(170, 119, 28, 0.4), rgba(255, 215, 0, 0.6), rgba(170, 119, 28, 0.4));
+  padding: 8px 12px;
+  text-align: center;
+  border-bottom: 1.5px solid #d4af37;
+}
+
+.panel-title {
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff9d6;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+  letter-spacing: 1px;
+}
+
+/* 2. Bảng Hiệu Ứng Quà (Trái) */
+.gift-guide-box {
+  top: 155px;
+  left: 30px;
+  width: 250px;
+}
+
+.gift-list {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gift-row {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 5px;
+  border-bottom: 1px dashed rgba(255, 215, 0, 0.2);
+}
+
+.gift-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.gift-name-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ff9999;
+}
+
+.gift-action-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #fce7b2;
+  margin-left: 4px;
+}
+
+/* 3. Bảng Công Đức (Phải Trên) */
+.leaderboard-box {
+  top: 155px;
+  right: 30px;
+  width: 250px;
+}
+
+.leaderboard-list {
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rank-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.rank-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.rank-badge {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.rank-1 { background: linear-gradient(135deg, #ffd700, #ffaa00); color: #402000; box-shadow: 0 0 8px #ffd700; }
+.rank-2 { background: linear-gradient(135deg, #e0e0e0, #9e9e9e); color: #212121; }
+.rank-3 { background: linear-gradient(135deg, #cd7f32, #8b4513); color: #fff; }
+.rank-other { background: rgba(255, 255, 255, 0.2); color: #ffea75; }
+
+.rank-name {
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+.rank-points {
+  color: #ffd700;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+/* 4. Mục Tiêu (Phải Dưới) */
+.goals-box {
+  top: 360px;
+  right: 30px;
+  width: 250px;
+}
+
+.goals-content {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.goal-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.goal-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 700;
+  color: #f7e6c4;
+}
+
+.goal-counter strong {
+  color: #ffd700;
+}
+
+.progress-bar-wrap {
+  width: 100%;
+  height: 12px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 8px;
+  transition: width 0.4s ease;
+}
+
+.heart-fill {
+  background: linear-gradient(90deg, #ff416c, #ff4b2b, #ff758c);
+  box-shadow: 0 0 10px #ff4b2b;
+}
+
+.share-fill {
+  background: linear-gradient(90deg, #00b09b, #96c93d, #ffd700);
+  box-shadow: 0 0 10px #96c93d;
+}
+
+.goal-reward-tag {
+  font-size: 11.5px;
+  color: #ffd700;
+  font-weight: 700;
+  background: rgba(255, 215, 0, 0.15);
+  padding: 3px 6px;
+  border-radius: 6px;
+  text-align: center;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.goal-reward-tag.share-reward {
+  color: #55ffdd;
+  background: rgba(0, 255, 200, 0.12);
+  border-color: rgba(0, 255, 200, 0.3);
+}
+
+/* 5. Toast Thông Báo Khi Có Quà Mới */
+.gift-toast-container {
+  position: absolute;
+  top: 550px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.gift-toast {
+  background: linear-gradient(90deg, rgba(82, 30, 2, 0.95), rgba(153, 51, 0, 0.95), rgba(82, 30, 2, 0.95));
+  border: 2px solid #ffd700;
+  border-radius: 30px;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 25px rgba(255, 215, 0, 0.6);
+  animation: toastSlide 4s forwards;
+}
+
+.toast-icon {
+  font-size: 32px;
+  filter: drop-shadow(0 0 8px #ffd700);
+}
+
+.toast-text {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff9e6;
+  white-space: nowrap;
+}
+
+.toast-user {
+  color: #ffd700;
+}
+
+.toast-action {
+  color: #ff9999;
+}
+
+.toast-points {
+  color: #ffea75;
+  background: rgba(255, 215, 0, 0.25);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+@keyframes toastSlide {
+  0% { transform: scale(0.6) translateY(30px); opacity: 0; }
+  15% { transform: scale(1.05) translateY(0); opacity: 1; }
+  25% { transform: scale(1) translateY(0); opacity: 1; }
+  80% { transform: scale(1) translateY(0); opacity: 1; }
+  100% { transform: scale(0.8) translateY(-40px); opacity: 0; }
+}
+
+/* 6. Hiệu ứng Rồng Vàng Hộ Pháp */
+.dragon-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 15;
+  overflow: hidden;
+}
+
+.golden-dragon {
+  position: absolute;
+  width: 500px;
+  height: 300px;
+  filter: drop-shadow(0 0 35px #ffd700) drop-shadow(0 0 70px #ff6a00);
+  animation: dragonFly 5s ease-in-out forwards;
+}
+
+@keyframes dragonFly {
+  0% {
+    left: -600px;
+    top: 500px;
+    transform: rotate(20deg) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  50% {
+    left: 280px;
+    top: 250px;
+    transform: rotate(-10deg) scale(1.2);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    left: 1200px;
+    top: 100px;
+    transform: rotate(-25deg) scale(0.8);
+    opacity: 0;
+  }
+}
+
+/* 7. Hiệu ứng Cá Chép Phóng Sinh */
+.carp-container {
+  position: absolute;
+  bottom: 120px;
+  left: 0;
+  width: 100%;
+  height: 350px;
+  pointer-events: none;
+  z-index: 12;
+  overflow: hidden;
+}
+
+.golden-carp {
+  position: absolute;
+  font-size: 55px;
+  filter: drop-shadow(0 0 15px #ffd700);
+  animation: carpSwim 4s ease-in-out forwards;
+}
+
+@keyframes carpSwim {
+  0% {
+    left: -100px;
+    bottom: 40px;
+    transform: rotate(-15deg) scale(0.7);
+    opacity: 0;
+  }
+  20% { opacity: 1; }
+  50% {
+    bottom: 180px;
+    transform: rotate(10deg) scale(1.1);
+  }
+  80% { opacity: 1; }
+  100% {
+    left: 1100px;
+    bottom: 80px;
+    transform: rotate(-10deg) scale(0.8);
+    opacity: 0;
+  }
+}
+
+/* 8. Hiệu ứng Hoa Đăng Thả Nước */
+.lantern-container {
+  position: absolute;
+  bottom: 50px;
+  left: 0;
+  width: 100%;
+  height: 250px;
+  pointer-events: none;
+  z-index: 12;
+}
+
+.floating-lantern {
+  position: absolute;
+  font-size: 42px;
+  filter: drop-shadow(0 0 20px #ff5500);
+  animation: lanternFloat 6s ease-in-out forwards;
+}
+
+@keyframes lanternFloat {
+  0% {
+    left: 50%;
+    bottom: 200px;
+    transform: translateX(-50%) scale(0.4);
+    opacity: 0;
+  }
+  20% { opacity: 1; }
+  100% {
+    left: var(--drift-x, 20%);
+    bottom: 10px;
+    transform: translateX(-50%) scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* 9. Mưa Vàng & Kim Nguyên Bảo */
+.gold-rain-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 16;
+}
+
+.gold-coin {
+  position: absolute;
+  font-size: 34px;
+  animation: goldFall 3.5s linear forwards;
+  filter: drop-shadow(0 0 10px #ffd700);
+}
+
+@keyframes goldFall {
+  0% {
+    top: -50px;
+    transform: rotate(0deg) scale(0.7);
+    opacity: 1;
+  }
+  100% {
+    top: 1950px;
+    transform: rotate(720deg) scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+/* Nút âm thanh nhỏ */
+.sound-toggle {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(28, 12, 5, 0.8);
+  border: 1.5px solid #d4af37;
+  color: #ffd700;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.sound-toggle:hover {
+  transform: scale(1.1);
+  background: rgba(170, 119, 28, 0.8);
+}

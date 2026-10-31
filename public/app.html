@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="description" content="Chùa Online 2.5D Chánh Điện - Tương tác thời gian thực TikTok LIVE Studio">
+  <meta name="theme-color" content="#0c0705">
+  <title>Chùa Online · Chánh Điện 2.5D TikTok Live</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <div id="wrap">
+    <div id="stage">
+      <!-- 2.5D Chánh Điện Canvas -->
+      <canvas id="c"></canvas>
+
+      <!-- HUD Top Bar -->
+      <div id="top" class="hud">
+        <div class="hud-left">
+          <span class="chip main-title">
+            <span class="temple-icon">🛕</span>
+            <b id="templeName">Chùa Online</b>
+            <span class="hint" id="monkStatus">· Đại lễ cầu an</span>
+          </span>
+        </div>
+        <div class="hud-right">
+          <span class="chip">
+            <span class="stat-icon">👥</span>
+            <span class="n" id="count">0</span>
+            <span class="stat-unit">phật tử</span>
+          </span>
+          <span class="chip gold-chip">
+            <span class="stat-icon">✨</span>
+            <span class="stat-unit">Công đức:</span>
+            <span class="n gold-num" id="totalPoints">0</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Bảng Tấm Lòng Thành (Top Donors) -->
+      <div id="board" hidden>
+        <div class="board-header">
+          <span class="board-icon">🏆</span>
+          <h3>Tấm Lòng Thành</h3>
+        </div>
+        <ol id="boardList"></ol>
+      </div>
+
+      <!-- Toast Thông Báo Đại Lễ / Cúng Dường -->
+      <div id="toast" role="status"></div>
+
+      <!-- Audio Unlock Overlay (nhấp để kích hoạt âm thanh cho TikTok LIVE Studio / OBS) -->
+      <div id="audioGate" class="audio-gate">
+        <div class="audio-gate-content">
+          <div class="gate-lotus">🪷</div>
+          <h2>Chánh Điện Online 2.5D</h2>
+          <p>Nhấn vào màn hình để bắt đầu chuông mõ và phát sóng lên TikTok LIVE Studio</p>
+          <button class="btn primary-gate-btn" id="btnStartAudio">🙏 Khởi Động Chánh Điện</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/app.js?v=20261031_12"></script>
+</body>
+</html>

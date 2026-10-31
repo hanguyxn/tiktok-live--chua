@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Chùa Online 3D - Three.js TikTok Live</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="overlay-3d.css">
+  <!-- Three.js từ CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+  <!-- Container chứa toàn bộ 3D Three.js Canvas -->
+  <div id="canvas-3d-container"></div>
+
+  <!-- Giao Diện HUD 2D Nổi Trên Nền 3D (Có thể ẩn/hiện khi live bằng điện thoại) -->
+  <div id="hud-container">
+    <!-- 1. Header: Chùa Online -->
+    <header class="hud-top-header">
+      <div class="temple-title-pill">
+        <h1 id="ui-temple-name">Chùa Online 3D</h1>
+        <div class="temple-stats-row">
+          <span>🙏 <strong id="ui-devotees-count">108</strong> phật tử</span>
+          <span class="sep">✦</span>
+          <span>✨ Công đức: <strong id="ui-total-points">56</strong></span>
+        </div>
+      </div>
+    </header>
+
+    <!-- 2. Bảng Hiệu Ứng Quà (Bên Trái) -->
+    <aside class="hud-panel hud-gifts" id="hud-gift-guide">
+      <div class="hud-panel-title">Hiệu ứng quà</div>
+      <div class="hud-gift-items" id="ui-gift-list">
+        <!-- Render từ config -->
+      </div>
+    </aside>
+
+    <!-- 3. Bảng Công Đức & Đỉnh Thượng Điện (Bên Phải Trên) -->
+    <aside class="hud-panel hud-leaderboard" id="hud-leaderboard">
+      <div class="hud-panel-title">Bảng Công Đức 🪷</div>
+      <div class="hud-rank-items" id="ui-leaderboard-list">
+        <!-- Render từ server: Top 1, 2, 3 có huy hiệu Ngự Đỉnh Đài Sen -->
+      </div>
+    </aside>
+
+    <!-- 4. Mục Tiêu (Bên Phải Dưới) -->
+    <aside class="hud-panel hud-goals" id="hud-goals">
+      <div class="hud-panel-title">Mục Tiêu</div>
+      <div class="goal-box">
+        <div class="goal-row">
+          <span>💖 Thả tim</span>
+          <span class="goal-num"><strong id="ui-likes-current">2.529</strong>/<span id="ui-likes-goal">3.200</span></span>
+        </div>
+        <div class="bar-wrap">
+          <div class="bar-fill heart-fill" id="ui-likes-bar" style="width: 79%;"></div>
+        </div>
+        <div class="reward-tag">Đủ tim ➜ Phật phát hào quang</div>
+      </div>
+
+      <div class="goal-box mt-2">
+        <div class="goal-row">
+          <span>🔗 Chia sẻ</span>
+          <span class="goal-num"><strong id="ui-shares-current">11</strong>/<span id="ui-shares-goal">10</span></span>
+        </div>
+        <div class="bar-wrap">
+          <div class="bar-fill share-fill" id="ui-shares-bar" style="width: 100%;"></div>
+        </div>
+        <div class="reward-tag share-reward">Chia sẻ ➜ Mưa vàng</div>
+      </div>
+    </aside>
+
+    <!-- 5. Toast Thông Báo Khi Có Quà Mới -->
+    <div class="hud-toast-wrap" id="gift-toast-container"></div>
+
+    <!-- 6. Thanh Điều Khiển Tiện Ích (Hỗ Trợ Hoàn Hảo Cho Livestream Màn Hình Điện Thoại) -->
+    <div class="hud-mobile-bar" id="mobile-control-bar">
+      <!-- Nút đổi góc quay camera 3D -->
+      <button class="m-btn" id="btn-cam-switch" title="Đổi góc nhìn Camera 3D">
+        🎥 <span id="cam-name">Toàn Cảnh</span>
+      </button>
+
+      <!-- Nút Toàn màn hình -->
+      <button class="m-btn" id="btn-fullscreen" title="Bật/Tắt Toàn Màn Hình">
+        ⛶ Toàn Màn Hình
+      </button>
+
+      <!-- Nút Khóa màn hình không tắt (WakeLock) -->
+      <button class="m-btn" id="btn-wakelock" title="Giữ màn hình điện thoại luôn sáng khi live">
+        🔒 Giữ Sáng
+      </button>
+
+      <!-- Nút Bật/Tắt âm thanh -->
+      <button class="m-btn" id="btn-sound" title="Bật/Tắt âm thanh chuông mõ">
+        🔊 Âm Thanh
+      </button>
+
+      <!-- Nút Ẩn/Hiện HUD để màn hình sạch sẽ khi live -->
+      <button class="m-btn m-btn-toggle" id="btn-toggle-hud" title="Ẩn/Hiện bảng điều khiển">
+        👁️ Ẩn Bảng
+      </button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="overlay-3d.js"></script>
+</body>
+</html>

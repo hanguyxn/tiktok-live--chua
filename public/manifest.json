@@ -1,0 +1,18 @@
+{
+  "name": "Chùa Online - TikTok Live",
+  "short_name": "Chùa Online",
+  "description": "Ứng dụng Livestream tương tác Chùa Online dành cho TikTok Live",
+  "start_url": "/app.html",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#0a0301",
+  "theme_color": "#ffd700",
+  "icons": [
+    {
+      "src": "/assets/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

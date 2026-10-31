@@ -1,0 +1,424 @@
+/* ========================================================
+   CHÙA ONLINE 3D - THREE.JS TIKTOK LIVE CSS
+   Tương Thích Cả OBS PC & Livestream Màn Hình Điện Thoại
+   ======================================================== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #050201;
+  font-family: 'Quicksand', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #fff;
+}
+
+/* Three.js 3D Canvas Container */
+#canvas-3d-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+}
+
+#canvas-3d-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* Lớp HUD Giao Diện Nổi Phía Trên 3D */
+#hud-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+/* Ẩn các bảng khi người dùng chọn chế độ Ẩn HUD để live điện thoại sạch sẽ */
+#hud-container.hud-hidden .hud-panel,
+#hud-container.hud-hidden .hud-top-header {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-20px);
+}
+
+/* 1. Header Chùa Online */
+.hud-top-header {
+  position: absolute;
+  top: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  pointer-events: auto;
+  transition: all 0.3s ease;
+}
+
+.temple-title-pill {
+  background: rgba(22, 9, 3, 0.85);
+  border: 2px solid #d4af37;
+  border-radius: 20px;
+  padding: 10px 30px;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.8), inset 0 0 15px rgba(255, 215, 0, 0.3);
+  backdrop-filter: blur(6px);
+}
+
+.temple-title-pill h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 900;
+  color: #ffea75;
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.8), 0 2px 4px #000;
+  letter-spacing: 1px;
+}
+
+.temple-stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #f7e6c4;
+  margin-top: 3px;
+}
+
+.temple-stats-row strong {
+  color: #ffd700;
+}
+
+.temple-stats-row .sep {
+  color: #ffaa00;
+}
+
+/* 2. Khung Panel Viền Vàng Thờ Tự */
+.hud-panel {
+  position: absolute;
+  background: rgba(18, 7, 2, 0.82);
+  border: 1.5px solid rgba(212, 175, 55, 0.75);
+  border-radius: 14px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.85), inset 0 0 10px rgba(255, 215, 0, 0.2);
+  backdrop-filter: blur(6px);
+  pointer-events: auto;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.hud-panel-title {
+  background: linear-gradient(90deg, rgba(170, 119, 28, 0.3), rgba(255, 215, 0, 0.5), rgba(170, 119, 28, 0.3));
+  padding: 6px 12px;
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff9d6;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+  border-bottom: 1px solid #d4af37;
+}
+
+/* Bảng Hiệu Ứng Quà (Trái) */
+.hud-gifts {
+  top: 110px;
+  left: 20px;
+  width: 220px;
+  max-height: 480px;
+  overflow-y: auto;
+}
+
+.hud-gift-items {
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hud-gift-row {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 4px;
+  border-bottom: 1px dashed rgba(255, 215, 0, 0.18);
+}
+.hud-gift-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.hud-gift-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ff9999;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.hud-gift-action {
+  font-size: 12px;
+  color: #fce7b2;
+  margin-left: 3px;
+}
+
+/* Bảng Công Đức (Phải Trên) */
+.hud-leaderboard {
+  top: 110px;
+  right: 20px;
+  width: 230px;
+}
+
+.hud-rank-items {
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.hud-rank-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.hud-rank-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+}
+
+.hud-rank-badge {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.r-1 { background: linear-gradient(135deg, #ffd700, #ffaa00); color: #3b1b00; box-shadow: 0 0 6px #ffd700; }
+.r-2 { background: linear-gradient(135deg, #e0e0e0, #9e9e9e); color: #212121; }
+.r-3 { background: linear-gradient(135deg, #cd7f32, #8b4513); color: #fff; }
+.r-other { background: rgba(255, 255, 255, 0.15); color: #ffea75; }
+
+.hud-rank-name {
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.hud-rank-vip {
+  font-size: 10px;
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.2);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+.hud-rank-points {
+  color: #ffd700;
+  font-weight: 700;
+}
+
+/* Mục Tiêu (Phải Dưới) */
+.hud-goals {
+  top: 320px;
+  right: 20px;
+  width: 230px;
+  padding-bottom: 8px;
+}
+
+.goal-box {
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.goal-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.goal-num strong {
+  color: #ffd700;
+}
+
+.bar-wrap {
+  width: 100%;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.4s ease;
+}
+
+.heart-fill {
+  background: linear-gradient(90deg, #ff416c, #ff4b2b);
+}
+
+.share-fill {
+  background: linear-gradient(90deg, #00b09b, #96c93d);
+}
+
+.reward-tag {
+  font-size: 10.5px;
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.12);
+  padding: 2px 4px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.reward-tag.share-reward {
+  color: #55ffdd;
+}
+
+.mt-2 { margin-top: 6px; }
+
+/* 3. Toast Thông Báo Quà Tặng */
+.hud-toast-wrap {
+  position: absolute;
+  top: 480px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.hud-toast {
+  background: linear-gradient(90deg, rgba(64, 22, 2, 0.92), rgba(138, 46, 0, 0.92), rgba(64, 22, 2, 0.92));
+  border: 1.5px solid #ffd700;
+  border-radius: 24px;
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.8), 0 0 18px rgba(255, 215, 0, 0.5);
+  animation: toast3DFade 3.8s forwards;
+}
+
+.toast-icon { font-size: 26px; }
+.toast-msg { font-size: 14px; font-weight: 700; }
+.toast-user { color: #ffd700; }
+.toast-act { color: #ff9999; }
+.toast-pts { color: #ffea75; background: rgba(255,215,0,0.2); padding: 1px 6px; border-radius: 8px; }
+
+@keyframes toast3DFade {
+  0% { transform: scale(0.6) translateY(20px); opacity: 0; }
+  15% { transform: scale(1) translateY(0); opacity: 1; }
+  85% { transform: scale(1) translateY(0); opacity: 1; }
+  100% { transform: scale(0.8) translateY(-25px); opacity: 0; }
+}
+
+/* 4. Thanh Điều Khiển Tiện Ích Điện Thoại (Bottom Floating Bar) */
+.hud-mobile-bar {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(18, 7, 2, 0.88);
+  border: 1.5px solid rgba(212, 175, 55, 0.7);
+  border-radius: 30px;
+  padding: 6px 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.8);
+  pointer-events: auto;
+  backdrop-filter: blur(6px);
+  z-index: 100;
+  max-width: 95vw;
+  overflow-x: auto;
+}
+
+.m-btn {
+  background: rgba(255, 215, 0, 0.12);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  color: #fff9d6;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 7px 12px;
+  border-radius: 18px;
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.m-btn:active, .m-btn:hover {
+  background: rgba(255, 215, 0, 0.3);
+  border-color: #ffd700;
+  color: #ffd700;
+}
+
+.m-btn.active {
+  background: linear-gradient(135deg, #ffd700, #b8860b);
+  color: #381504;
+  border-color: #fff;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .hud-gifts {
+    top: 95px;
+    left: 8px;
+    width: 155px;
+    font-size: 11px;
+  }
+  .hud-leaderboard {
+    top: 95px;
+    right: 8px;
+    width: 175px;
+  }
+  .hud-goals {
+    top: 270px;
+    right: 8px;
+    width: 175px;
+  }
+  .temple-title-pill h1 {
+    font-size: 20px;
+  }
+  .temple-stats-row {
+    font-size: 12px;
+  }
+  .m-btn {
+    font-size: 11px;
+    padding: 6px 9px;
+  }
+}

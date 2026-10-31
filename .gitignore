@@ -1,0 +1,7 @@
+node_modules/
+.env
+*.log
+temp/
+.DS_Store
+public/assets/music/loi_phat_day.m4a
+public/assets/music/*.m4a

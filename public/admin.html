@@ -313,6 +313,7 @@
                     <th>Nghi Lễ Hiển Thị</th>
                     <th>Hiệu Ứng FX</th>
                     <th>Điểm Công Đức</th>
+                    <th>🥠 Mở Quẻ</th>
                     <th>Thao Tác</th>
                   </tr>
                 </thead>
@@ -755,11 +756,46 @@
                 </div>
               </div>
 
-              <div class="form-row" style="margin-top: 15px;">
+              <div class="form-row" style="margin-top: 10px;">
                 <div class="form-group">
+                  <label class="checkbox-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: bold; font-size: 14px;">
+                    <input type="checkbox" id="fortune-show-banner-input" checked style="width: 18px; height: 18px;">
+                    <span>Hiển thị bảng hướng dẫn bốc quẻ ở giữa bên trái màn hình (Side Banner)</span>
+                  </label>
+                </div>
+                <div class="form-group">
+                  <label for="fortune-banner-title-input">Tiêu đề bảng bốc quẻ (Side Banner Title)</label>
+                  <input type="text" id="fortune-banner-title-input" value="BỐC QUẺ BẢN MỆNH" class="form-control" placeholder="BỐC QUẺ BẢN MỆNH">
+                </div>
+              </div>
+
+              <!-- Cấu hình quà tặng được bốc quẻ -->
+              <div class="card" style="margin-top: 15px; background: rgba(0,0,0,0.25); border: 1px solid rgba(217, 164, 65, 0.35); padding: 15px; border-radius: 8px;">
+                <h4 style="margin: 0 0 10px 0; color: #ffd700; font-size: 14px;">🎯 Chọn Quà Tặng Đủ Điều Kiện Bốc Quẻ</h4>
+                <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 12px;">
+                  <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600;">
+                    <input type="radio" name="fortune-mode" value="all" id="fortune-mode-all" checked>
+                    <span>Tất cả quà tặng (đạt số xu tối thiểu)</span>
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600;">
+                    <input type="radio" name="fortune-mode" value="specific" id="fortune-mode-specific">
+                    <span>Chỉ các quà tặng được chỉ định dưới đây</span>
+                  </label>
+                </div>
+
+                <div id="fortune-specific-gifts-container" style="display: none; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 6px; border: 1px dashed rgba(217,164,65,0.4); margin-bottom: 10px;">
+                  <div style="font-size: 12px; color: #d9a441; margin-bottom: 10px; font-weight: 600;">Tích chọn các món quà người xem tặng sẽ được mở quẻ xăm:</div>
+                  <div id="fortune-gifts-checkbox-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px;">
+                    <!-- Checkbox list dynamically populated -->
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row" style="margin-top: 15px;">
+                <div class="form-group" id="fortune-mincoins-group">
                   <label for="fortune-mincoins-input">Số Xu Tối Thiểu Nhận Quẻ (Diamonds)</label>
                   <input type="number" id="fortune-mincoins-input" value="1" min="1" max="10000" class="form-control">
-                  <small class="hint">Quà tặng đạt từ số xu này trở lên sẽ kích hoạt bốc quẻ (mặc định 1 xu = mọi quà tặng)</small>
+                  <small class="hint">Quà tặng đạt từ số xu này trở lên sẽ kích hoạt bốc quẻ (chế độ Tất Cả Quà)</small>
                 </div>
                 <div class="form-group">
                   <label for="fortune-duration-input">Thời Gian Hiển Thị Quẻ (Giây)</label>
@@ -850,6 +886,12 @@
         <div class="form-group">
           <label>Điểm Công Đức:</label>
           <input type="number" id="modal-gift-points" value="10" min="1">
+        </div>
+        <div class="form-group">
+          <label class="checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-top: 6px;">
+            <input type="checkbox" id="modal-gift-can-draw" style="width: 18px; height: 18px;" checked>
+            <span style="font-weight: 600; color: #ffd700;">Cho phép quà này kích hoạt Bốc Quẻ Xăm (Linh Xăm)</span>
+          </label>
         </div>
       </div>
       <div class="modal-footer">

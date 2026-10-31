@@ -358,6 +358,7 @@ const modalGiftIcon = document.getElementById('modal-gift-icon');
 const modalActionName = document.getElementById('modal-action-name');
 const modalActionType = document.getElementById('modal-action-type');
 const modalGiftPoints = document.getElementById('modal-gift-points');
+const modalGiftCanDraw = document.getElementById('modal-gift-can-draw');
 const modalCloseBtn = document.getElementById('modal-close-btn');
 const modalCancelBtn = document.getElementById('modal-cancel-btn');
 const modalSaveBtn = document.getElementById('modal-save-btn');
@@ -372,11 +373,14 @@ function renderGiftsTable(gifts) {
         <input type="checkbox" ${gift.enabled ? 'checked' : ''} data-index="${index}" class="gift-toggle-chk">
       </td>
       <td style="font-size: 20px;">${gift.icon || '🎁'}</td>
-      <td><strong>${gift.giftName}</strong></td>
-      <td><code>${gift.tiktokKey || '--'}</code></td>
-      <td><span class="badge-tag">${gift.actionName || '--'}</span></td>
-      <td><small style="color: #ffd700;">${gift.actionType || 'lotus'}</small></td>
-      <td><strong style="color: #00ff88;">+${gift.points || 1}</strong></td>
+      <td><strong>${gift.giftName || gift.name}</strong></td>
+      <td><code>${gift.tiktokKey || gift.id || '--'}</code></td>
+      <td><span class="badge-tag">${gift.actionName || gift.ritual || '--'}</span></td>
+      <td><small style="color: #ffd700;">${gift.actionType || gift.sound || 'lotus'}</small></td>
+      <td><strong style="color: #00ff88;">+${gift.points || gift.diamondCount || 1}</strong></td>
+      <td style="text-align: center;">
+        <input type="checkbox" ${gift.canDrawFortune !== false ? 'checked' : ''} data-index="${index}" class="gift-fortune-chk" title="Bốc quẻ khi tặng quà này">
+      </td>
       <td>
         <button class="btn-sm btn-outline edit-gift-btn" data-id="${gift.id}">✏️ Sửa</button>
         <button class="btn-sm btn-danger delete-gift-btn" data-id="${gift.id}">🗑️</button>
@@ -390,6 +394,14 @@ function renderGiftsTable(gifts) {
     chk.addEventListener('change', (e) => {
       const idx = e.target.getAttribute('data-index');
       currentConfig.gifts[idx].enabled = e.target.checked;
+    });
+  });
+
+  // Bind fortune draw toggle
+  document.querySelectorAll('.gift-fortune-chk').forEach(chk => {
+    chk.addEventListener('change', (e) => {
+      const idx = e.target.getAttribute('data-index');
+      currentConfig.gifts[idx].canDrawFortune = e.target.checked;
     });
   });
 
@@ -421,12 +433,13 @@ function openGiftModal(giftId = null) {
     if (!gift) return;
     modalTitle.textContent = 'Chỉnh Sửa Quà & Nghi Lễ';
     modalGiftId.value = gift.id;
-    modalGiftName.value = gift.giftName;
-    modalGiftKey.value = gift.tiktokKey || '';
+    modalGiftName.value = gift.giftName || gift.name || '';
+    modalGiftKey.value = gift.tiktokKey || gift.id || '';
     modalGiftIcon.value = gift.icon || '';
-    modalActionName.value = gift.actionName;
-    modalActionType.value = gift.actionType || 'lotus';
-    modalGiftPoints.value = gift.points || 1;
+    modalActionName.value = gift.actionName || gift.ritual || '';
+    modalActionType.value = gift.actionType || gift.sound || 'lotus';
+    modalGiftPoints.value = gift.points || gift.diamondCount || 1;
+    if (modalGiftCanDraw) modalGiftCanDraw.checked = gift.canDrawFortune !== false;
   } else {
     modalTitle.textContent = 'Thêm Quà Mới';
     modalGiftId.value = 'gift_' + Date.now();
@@ -436,6 +449,7 @@ function openGiftModal(giftId = null) {
     modalActionName.value = 'Dâng hoa sen';
     modalActionType.value = 'lotus';
     modalGiftPoints.value = 10;
+    if (modalGiftCanDraw) modalGiftCanDraw.checked = true;
   }
   giftModal.classList.add('active');
 }
@@ -455,6 +469,7 @@ modalSaveBtn?.addEventListener('click', () => {
   const actionName = modalActionName.value.trim() || 'Dâng phẩm vật';
   const actionType = modalActionType.value;
   const points = parseInt(modalGiftPoints.value, 10) || 1;
+  const canDrawFortune = modalGiftCanDraw ? modalGiftCanDraw.checked : true;
 
   if (!giftName) {
     alert('Vui lòng nhập tên quà TikTok!');
@@ -471,7 +486,8 @@ modalSaveBtn?.addEventListener('click', () => {
         icon,
         actionName,
         actionType,
-        points
+        points,
+        canDrawFortune
       };
     }
   } else {
@@ -483,7 +499,8 @@ modalSaveBtn?.addEventListener('click', () => {
       actionName,
       actionType,
       points,
-      enabled: true
+      enabled: true,
+      canDrawFortune
     });
   }
 
@@ -1362,21 +1379,74 @@ async function loadFortuneSettings() {
 
     const fCfg = data.fortune || {};
     const fortunes = data.fortunes || [];
+    const gifts = data.gifts || currentConfig.gifts || [];
 
     const chkEnabled = document.getElementById('fortune-enabled-input');
     const chkTts = document.getElementById('fortune-tts-input');
+    const chkShowBanner = document.getElementById('fortune-show-banner-input');
+    const inBannerTitle = document.getElementById('fortune-banner-title-input');
     const inMinCoins = document.getElementById('fortune-mincoins-input');
     const inDuration = document.getElementById('fortune-duration-input');
     const inZoom = document.getElementById('fortune-zoom-input');
     const countBadge = document.getElementById('fortune-count-badge');
     const tableBody = document.getElementById('fortunes-table-body');
 
+    const radioModeAll = document.getElementById('fortune-mode-all');
+    const radioModeSpecific = document.getElementById('fortune-mode-specific');
+    const specificContainer = document.getElementById('fortune-specific-gifts-container');
+    const giftsCheckboxList = document.getElementById('fortune-gifts-checkbox-list');
+
     if (chkEnabled) chkEnabled.checked = fCfg.enabled !== false;
     if (chkTts) chkTts.checked = fCfg.ttsEnabled !== false;
+    if (chkShowBanner) chkShowBanner.checked = fCfg.showBanner !== false;
+    if (inBannerTitle) inBannerTitle.value = fCfg.bannerTitle || 'BỐC QUẺ BẢN MỆNH';
     if (inMinCoins) inMinCoins.value = fCfg.minCoins || 1;
     if (inDuration) inDuration.value = fCfg.durationSec || 7.0;
     if (inZoom) inZoom.value = fCfg.zoomLevel || 1.75;
     if (countBadge) countBadge.textContent = fortunes.length;
+
+    // Mode setup
+    const mode = fCfg.mode || 'all';
+    if (mode === 'specific') {
+      if (radioModeSpecific) radioModeSpecific.checked = true;
+      if (specificContainer) specificContainer.style.display = 'block';
+    } else {
+      if (radioModeAll) radioModeAll.checked = true;
+      if (specificContainer) specificContainer.style.display = 'none';
+    }
+
+    // Toggle container on radio change
+    const updateModeVisibility = () => {
+      const isSpecific = radioModeSpecific?.checked;
+      if (specificContainer) specificContainer.style.display = isSpecific ? 'block' : 'none';
+    };
+    if (radioModeAll && !radioModeAll._bound) {
+      radioModeAll.addEventListener('change', updateModeVisibility);
+      radioModeAll._bound = true;
+    }
+    if (radioModeSpecific && !radioModeSpecific._bound) {
+      radioModeSpecific.addEventListener('change', updateModeVisibility);
+      radioModeSpecific._bound = true;
+    }
+
+    // Populate gifts checkboxes
+    if (giftsCheckboxList && gifts.length > 0) {
+      const allowed = Array.isArray(fCfg.allowedGiftIds) ? fCfg.allowedGiftIds : [];
+      giftsCheckboxList.innerHTML = gifts.map(g => {
+        const isChecked = (mode === 'specific')
+          ? allowed.includes(g.id)
+          : (g.canDrawFortune !== false);
+        const name = g.name || g.giftName || 'Lễ vật';
+        const cost = g.diamondCount || g.points || 1;
+        const icon = g.icon || '🎁';
+        return `
+          <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); padding: 8px 10px; border-radius: 6px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1);">
+            <input type="checkbox" class="fortune-gift-allowed-chk" value="${g.id}" ${isChecked ? 'checked' : ''} style="width: 16px; height: 16px;">
+            <span style="font-size: 13px;">${icon} <strong>${name}</strong> <small style="color:#ffd700">(${cost} xu)</small></span>
+          </label>
+        `;
+      }).join('');
+    }
 
     if (tableBody) {
       tableBody.innerHTML = fortunes.map(f => `
@@ -1401,19 +1471,37 @@ if (fortuneSettingsForm) {
     e.preventDefault();
     const enabled = document.getElementById('fortune-enabled-input')?.checked ?? true;
     const ttsEnabled = document.getElementById('fortune-tts-input')?.checked ?? true;
+    const showBanner = document.getElementById('fortune-show-banner-input')?.checked ?? true;
+    const bannerTitle = document.getElementById('fortune-banner-title-input')?.value || 'BỐC QUẺ BẢN MỆNH';
+    const mode = document.getElementById('fortune-mode-specific')?.checked ? 'specific' : 'all';
     const minCoins = parseInt(document.getElementById('fortune-mincoins-input')?.value, 10) || 1;
     const durationSec = parseFloat(document.getElementById('fortune-duration-input')?.value) || 7.0;
     const zoomLevel = parseFloat(document.getElementById('fortune-zoom-input')?.value) || 1.75;
+    const allowedGiftIds = Array.from(document.querySelectorAll('.fortune-gift-allowed-chk:checked')).map(el => el.value);
 
     try {
       const res = await fetch('/api/fortune/config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ enabled, ttsEnabled, minCoins, durationSec, zoomLevel })
+        body: JSON.stringify({
+          enabled,
+          ttsEnabled,
+          showBanner,
+          bannerTitle,
+          mode,
+          minCoins,
+          durationSec,
+          zoomLevel,
+          allowedGiftIds
+        })
       });
       const data = await res.json();
       if (data.success) {
-        alert('✅ Đã lưu cấu hình Quẻ Xăm thành công!');
+        alert('✅ Đã lưu cấu hình Quẻ Xăm & Bảng Banner thành công!');
+        if (data.gifts && currentConfig) {
+          currentConfig.gifts = data.gifts;
+          renderGiftsTable(currentConfig.gifts);
+        }
       } else {
         alert('Lỗi lưu cài đặt: ' + (data.error || 'Lỗi'));
       }

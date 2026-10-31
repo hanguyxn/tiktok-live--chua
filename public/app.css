@@ -443,6 +443,156 @@ html, body {
 }
 
 /* ===================================================================
+ *  Center-Left Fortune Call-To-Action Banner (Bên Trái Màn Hình)
+ * =================================================================== */
+.fortune-side-banner {
+  position: absolute;
+  left: 14px;
+  top: 48%;
+  transform: translateY(-50%);
+  z-index: 6;
+  width: 175px;
+  background: linear-gradient(165deg, rgba(38, 16, 8, 0.94) 0%, rgba(18, 7, 3, 0.96) 100%);
+  border: 1.5px solid var(--gold);
+  border-radius: 14px;
+  padding: 12px 10px 10px 10px;
+  box-shadow: 
+    0 0 0 1px rgba(255, 215, 0, 0.3),
+    0 10px 30px rgba(0, 0, 0, 0.75),
+    0 0 25px rgba(217, 164, 65, 0.25);
+  backdrop-filter: blur(10px);
+  text-align: center;
+  pointer-events: none;
+  animation: bannerBreathing 4s ease-in-out infinite;
+}
+
+@keyframes bannerBreathing {
+  0%, 100% {
+    box-shadow: 
+      0 0 0 1px rgba(255, 215, 0, 0.3),
+      0 10px 30px rgba(0, 0, 0, 0.75),
+      0 0 20px rgba(217, 164, 65, 0.2);
+    border-color: rgba(217, 164, 65, 0.65);
+  }
+  50% {
+    box-shadow: 
+      0 0 0 1px rgba(255, 215, 0, 0.6),
+      0 12px 35px rgba(0, 0, 0, 0.85),
+      0 0 35px rgba(255, 215, 0, 0.45);
+    border-color: var(--gold-bright);
+  }
+}
+
+.fsb-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-bottom: 3px;
+}
+
+.fsb-icon {
+  font-size: 16px;
+  filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.8));
+}
+
+.fsb-title {
+  font-family: var(--display);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold-bright);
+  letter-spacing: 0.6px;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+  line-height: 1.2;
+}
+
+.fsb-divider {
+  font-size: 9px;
+  color: var(--gold);
+  opacity: 0.7;
+  margin: 1px 0 4px 0;
+  letter-spacing: 2px;
+}
+
+.fsb-desc {
+  font-size: 11px;
+  color: #fff3dc;
+  font-weight: 600;
+  line-height: 1.35;
+  margin-bottom: 7px;
+}
+
+.fsb-gifts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(10, 4, 2, 0.55);
+  border-radius: 8px;
+  padding: 6px 8px;
+  margin-bottom: 7px;
+  border: 1px dashed rgba(217, 164, 65, 0.35);
+}
+
+.fsb-gift-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.fsb-gift-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fsb-gift-icon {
+  font-size: 12px;
+}
+
+.fsb-gift-name {
+  color: #f1e3c8;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 82px;
+}
+
+.fsb-gift-coin {
+  color: var(--gold-bright);
+  font-weight: 700;
+  font-size: 10px;
+  background: rgba(138, 42, 30, 0.6);
+  padding: 1px 5px;
+  border-radius: 4px;
+  border: 0.5px solid rgba(255, 215, 0, 0.4);
+}
+
+.fsb-more {
+  font-size: 10px;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 2px;
+}
+
+.fsb-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 10px;
+  color: #f7d794;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
+}
+
+/* ===================================================================
  *  Thẻ Quẻ Xăm Phật Bản Mệnh (Linh Xăm Cát Tường)
  * =================================================================== */
 .fortune-modal {

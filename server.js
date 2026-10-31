@@ -180,8 +180,19 @@ if (!appConfig.fortune) {
     minCoins: 1,
     durationSec: 7.0,
     zoomLevel: 1.75,
-    ttsEnabled: true
+    ttsEnabled: true,
+    mode: 'all',
+    showBanner: true,
+    bannerTitle: 'BỐC QUẺ BẢN MỆNH',
+    allowedGiftIds: []
   };
+} else {
+  if (appConfig.fortune.mode === undefined) appConfig.fortune.mode = 'all';
+  if (appConfig.fortune.showBanner === undefined) appConfig.fortune.showBanner = true;
+  if (appConfig.fortune.bannerTitle === undefined) appConfig.fortune.bannerTitle = 'BỐC QUẺ BẢN MỆNH';
+  if (!Array.isArray(appConfig.fortune.allowedGiftIds)) {
+    appConfig.fortune.allowedGiftIds = Array.isArray(appConfig.gifts) ? appConfig.gifts.map(g => g.id) : [];
+  }
 }
 if (!Array.isArray(appConfig.fortunes) || appConfig.fortunes.length === 0) {
   appConfig.fortunes = DEFAULT_FORTUNES;
@@ -658,27 +669,43 @@ app.get('/api/fortune/config', (req, res) => {
       minCoins: 1,
       durationSec: 7.0,
       zoomLevel: 1.75,
-      ttsEnabled: true
+      ttsEnabled: true,
+      mode: 'all',
+      showBanner: true,
+      bannerTitle: 'BỐC QUẺ BẢN MỆNH',
+      allowedGiftIds: []
     },
-    fortunes: appConfig.fortunes || []
+    fortunes: appConfig.fortunes || [],
+    gifts: appConfig.gifts || []
   });
 });
 
 app.post('/api/fortune/config', (req, res) => {
   try {
-    const { enabled, minCoins, durationSec, zoomLevel, ttsEnabled } = req.body;
+    const { enabled, minCoins, durationSec, zoomLevel, ttsEnabled, mode, showBanner, bannerTitle, allowedGiftIds } = req.body;
     if (!appConfig.fortune) appConfig.fortune = {};
     if (typeof enabled === 'boolean') appConfig.fortune.enabled = enabled;
     if (minCoins !== undefined) appConfig.fortune.minCoins = Math.max(1, parseInt(minCoins, 10) || 1);
     if (durationSec !== undefined) appConfig.fortune.durationSec = Math.max(3, parseFloat(durationSec) || 7.0);
     if (zoomLevel !== undefined) appConfig.fortune.zoomLevel = Math.max(1.1, Math.min(2.5, parseFloat(zoomLevel) || 1.75));
     if (typeof ttsEnabled === 'boolean') appConfig.fortune.ttsEnabled = ttsEnabled;
+    if (mode !== undefined) appConfig.fortune.mode = mode;
+    if (typeof showBanner === 'boolean') appConfig.fortune.showBanner = showBanner;
+    if (bannerTitle !== undefined) appConfig.fortune.bannerTitle = bannerTitle.trim();
+    if (Array.isArray(allowedGiftIds)) {
+      appConfig.fortune.allowedGiftIds = allowedGiftIds;
+      if (Array.isArray(appConfig.gifts)) {
+        appConfig.gifts.forEach(g => {
+          g.canDrawFortune = allowedGiftIds.includes(g.id);
+        });
+      }
+    }
 
     saveConfig(appConfig);
     io.emit('config_updated', appConfig);
 
     console.log('[Quẻ Xăm] ⚙️ Cập nhật cấu hình bốc quẻ:', appConfig.fortune);
-    res.json({ success: true, message: 'Đã lưu cấu hình Quẻ Xăm thành công!', fortune: appConfig.fortune });
+    res.json({ success: true, message: 'Đã lưu cấu hình Quẻ Xăm thành công!', fortune: appConfig.fortune, gifts: appConfig.gifts });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -1341,11 +1368,26 @@ function processGiftEvent(user, rawGiftName, repeatCount, diamonds) {
   ];
   const prayer = matchedGift.customPrayer || prayersList[Math.floor(Math.random() * prayersList.length)];
 
-  // Bốc quẻ xăm linh ứng khi tặng quà
+  // Bốc quẻ xăm linh ứng khi tặng quà (theo cấu hình cài đặt quà hoặc số xu)
   let drawnFortune = null;
-  if (appConfig.fortune?.enabled !== false && Array.isArray(appConfig.fortunes) && appConfig.fortunes.length > 0) {
-    const minCoins = appConfig.fortune?.minCoins || 1;
-    if (diamonds >= minCoins || pointsEarned >= minCoins) {
+  const fortuneCfg = appConfig.fortune || {};
+  if (fortuneCfg.enabled !== false && Array.isArray(appConfig.fortunes) && appConfig.fortunes.length > 0) {
+    let canDraw = false;
+    const mode = fortuneCfg.mode || 'all';
+
+    if (mode === 'specific') {
+      const allowedIds = Array.isArray(fortuneCfg.allowedGiftIds) ? fortuneCfg.allowedGiftIds : [];
+      if (matchedGift.canDrawFortune === true || allowedIds.includes(matchedGift.id)) {
+        canDraw = true;
+      }
+    } else {
+      const minCoins = fortuneCfg.minCoins || 1;
+      if (diamonds >= minCoins || pointsEarned >= minCoins) {
+        canDraw = true;
+      }
+    }
+
+    if (canDraw) {
       drawnFortune = appConfig.fortunes[Math.floor(Math.random() * appConfig.fortunes.length)];
     }
   }

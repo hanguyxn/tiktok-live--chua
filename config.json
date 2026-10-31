@@ -14,7 +14,8 @@
       "points": 1,
       "sound": "incense",
       "enabled": true,
-      "description": "Thắp nén hương thơm vào lư đồng, khói tỏa thanh tịnh"
+      "description": "Thắp nén hương thơm vào lư đồng, khói tỏa thanh tịnh",
+      "canDrawFortune": true
     },
     {
       "id": "gift_finger_heart",
@@ -26,7 +27,8 @@
       "points": 5,
       "sound": "bell_soft",
       "enabled": true,
-      "description": "Thắp sáng hàng nến hoa sen lung linh ấm áp"
+      "description": "Thắp sáng hàng nến hoa sen lung linh ấm áp",
+      "canDrawFortune": true
     },
     {
       "id": "gift_flower",
@@ -38,7 +40,8 @@
       "points": 10,
       "sound": "chime",
       "enabled": true,
-      "description": "Dâng đóa hoa sen ngát hương lên tòa sen Phật"
+      "description": "Dâng đóa hoa sen ngát hương lên tòa sen Phật",
+      "canDrawFortune": true
     },
     {
       "id": "gift_donut",
@@ -50,7 +53,8 @@
       "points": 30,
       "sound": "temple_bell",
       "enabled": true,
-      "description": "Thỉnh đại hồng chung ngân nga tiếng Boong chấn động tâm can"
+      "description": "Thỉnh đại hồng chung ngân nga tiếng Boong chấn động tâm can",
+      "canDrawFortune": true
     },
     {
       "id": "gift_heart_hands",
@@ -62,7 +66,8 @@
       "points": 50,
       "sound": "blessing",
       "enabled": true,
-      "description": "Dâng mâm ngũ quả cầu sung túc tài lộc bình an"
+      "description": "Dâng mâm ngũ quả cầu sung túc tài lộc bình an",
+      "canDrawFortune": true
     },
     {
       "id": "gift_corgi",
@@ -74,7 +79,8 @@
       "points": 100,
       "sound": "water_splash",
       "enabled": true,
-      "description": "Phóng sinh đàn cá chép vàng lội suối bơi qua hồ sen"
+      "description": "Phóng sinh đàn cá chép vàng lội suối bơi qua hồ sen",
+      "canDrawFortune": true
     },
     {
       "id": "gift_money_gun",
@@ -86,7 +92,8 @@
       "points": 500,
       "sound": "celestial",
       "enabled": true,
-      "description": "Thả hoa đăng lung linh cầu nguyện quốc thái dân an"
+      "description": "Thả hoa đăng lung linh cầu nguyện quốc thái dân an",
+      "canDrawFortune": true
     },
     {
       "id": "gift_lion",
@@ -98,15 +105,16 @@
       "points": 1000,
       "sound": "dragon_roar",
       "enabled": true,
-      "description": "Kim Long hộ pháp giáng thế bay lượn hào quang chói lòa"
+      "description": "Kim Long hộ pháp giáng thế bay lượn hào quang chói lòa",
+      "canDrawFortune": true
     }
   ],
   "goals": {
     "likeGoal": 3200,
-    "likeCurrent": 3356,
+    "likeCurrent": 3359,
     "likeReward": "Phật phát hào quang",
     "shareGoal": 10,
-    "shareCurrent": 128,
+    "shareCurrent": 129,
     "shareReward": "Mưa vàng"
   },
   "audio": {
@@ -235,7 +243,7 @@
     "maxBots": 10,
     "autoLeave": true
   },
-  "currentTrack": "loi_phat_day.m4a",
+  "currentTrack": "YTSave.to_YouTube_Media_faiFINLJA8E_Nhạc-Thiền-Cho-Buổi-Sáng-Tĩnh-Tâm-An-Lạc-Ngày-Mới-Tràn-Đầy-Năng-Lượng_005_128k_1_1793467343564.m4a",
   "prayers": [
     "Cầu cho con gia đạo bình an"
   ],
@@ -246,7 +254,20 @@
     "minCoins": 1,
     "durationSec": 7,
     "zoomLevel": 1.75,
-    "ttsEnabled": true
+    "ttsEnabled": true,
+    "mode": "all",
+    "showBanner": true,
+    "bannerTitle": "BỐC QUẺ BẢN MỆNH",
+    "allowedGiftIds": [
+      "gift_rose",
+      "gift_finger_heart",
+      "gift_flower",
+      "gift_donut",
+      "gift_heart_hands",
+      "gift_corgi",
+      "gift_money_gun",
+      "gift_lion"
+    ]
   },
   "fortunes": [
     {
@@ -361,7 +382,7 @@
   "autoCleanup": {
     "enabled": true,
     "timeoutSec": 90,
-    "keepDonors": true,
+    "keepDonors": false,
     "donorTimeoutSec": 300
   }
 }

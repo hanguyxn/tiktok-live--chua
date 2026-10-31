@@ -1106,6 +1106,71 @@ function hideFortuneCard() {
   if (card) card.classList.remove('fade-out');
 }
 
+function updateFortuneBannerUI() {
+  const banner = document.getElementById('fortuneBanner');
+  if (!banner) return;
+
+  const fCfg = config.fortune || {};
+  if (fCfg.enabled === false || fCfg.showBanner === false) {
+    banner.style.display = 'none';
+    return;
+  }
+
+  banner.style.display = 'block';
+  const titleEl = document.getElementById('fsbTitle');
+  if (titleEl) {
+    titleEl.textContent = fCfg.bannerTitle || 'BỐC QUẺ BẢN MỆNH';
+  }
+
+  const listEl = document.getElementById('fsbGiftsList');
+  if (!listEl) return;
+
+  const mode = fCfg.mode || 'all';
+  const minCoins = fCfg.minCoins || 1;
+  const gifts = Array.isArray(config.gifts) ? config.gifts : [];
+
+  let qualifying = gifts.filter(g => {
+    if (g.enabled === false) return false;
+    if (mode === 'specific') {
+      const allowed = Array.isArray(fCfg.allowedGiftIds) ? fCfg.allowedGiftIds : [];
+      return g.canDrawFortune === true || allowed.includes(g.id);
+    }
+    const c = g.diamondCount || g.points || 1;
+    return c >= minCoins;
+  });
+
+  // Sắp xếp theo số xu tăng dần
+  qualifying.sort((a, b) => (a.diamondCount || a.points || 0) - (b.diamondCount || b.points || 0));
+
+  if (qualifying.length === 0) {
+    listEl.innerHTML = `<div class="fsb-gift-item" style="justify-content:center;color:#e8bb6b;">Tặng lễ vật bất kỳ</div>`;
+    return;
+  }
+
+  const displayLimit = 4;
+  const shown = qualifying.slice(0, displayLimit);
+  let html = shown.map(g => {
+    const cost = g.diamondCount || g.points || 1;
+    const icon = g.icon || '🎁';
+    const name = g.name || 'Lễ vật';
+    return `
+      <div class="fsb-gift-item">
+        <div class="fsb-gift-left">
+          <span class="fsb-gift-icon">${icon}</span>
+          <span class="fsb-gift-name" title="${name}">${name}</span>
+        </div>
+        <span class="fsb-gift-coin">${cost} xu</span>
+      </div>
+    `;
+  }).join('');
+
+  if (qualifying.length > displayLimit) {
+    html += `<div class="fsb-more">+ và ${qualifying.length - displayLimit} lễ vật khác</div>`;
+  }
+
+  listEl.innerHTML = html;
+}
+
 // ─── Main Render Loop ──────────────────────────────────────────────
 let lastTime = performance.now();
 
@@ -1460,6 +1525,7 @@ socket.on('init_state', (data) => {
       bgImg.src = config.currentBackground;
       bgImg.onload = () => { A.hall = bgImg; };
     }
+    updateFortuneBannerUI();
   }
   if (data.username) {
     currentUsername = data.username;
@@ -1510,6 +1576,7 @@ socket.on('config_updated', (newConfig) => {
       bgImg.src = config.currentBackground;
       bgImg.onload = () => { A.hall = bgImg; };
     }
+    updateFortuneBannerUI();
   }
 });
 
